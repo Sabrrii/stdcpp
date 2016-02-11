@@ -1,8 +1,8 @@
 BIN=hello_cimg
-version=v0.0.2
+version=v0.0.3
 
 VERSION=-DVERSION=\"$(version)\"
-CIMG_LIB=-I../CImg -Wall -W -lm -ansi -pedantic -O0 -fno-tree-pre -Dcimg_use_vt100 -lpthread
+CIMG_LIB=-I../CImg -Wall -W -lm -ansi -pedantic -O3 -fno-tree-pre -Dcimg_use_vt100 -lpthread
 CIMG_LIBX=-I/usr/X11R6/include -Dcimg_use_xshm -Dcimg_use_xrandr -L/usr/X11R6/lib -lX11 -lXext -lXrandr
 
 all: bin doc run
