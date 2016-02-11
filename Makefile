@@ -1,4 +1,4 @@
-BIN=hello
+BIN=hello_cimg
 
 all: bin doc run
 

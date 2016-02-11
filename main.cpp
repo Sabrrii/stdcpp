@@ -1,5 +1,5 @@
 /**
- * \brief minimal Hello program (doxygen syntax)
+ * \brief minimal Hello CImg program (doxygen syntax)
  * \author Sebastien COUDERT
 **/
 
@@ -13,7 +13,7 @@
 int main(int argc, char **argv)
 {
   //! print hello message on terminal
-  std::cout<<"Hello C++"<<std::endl;
+  std::cout<<"Hello CImg (C++)"<<std::endl;
   return 0;
 }//main
 

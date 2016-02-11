@@ -59,7 +59,7 @@ build:
     paths:
     - ARCH.txt
     - VERSION
-    - hello_help.output
+    - hello_cimg_help.output
     - doc/html
 
 
