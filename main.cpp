@@ -15,10 +15,11 @@ using namespace cimg_library;
 int main(int argc, char **argv)
 {
   ///command arguments, i.e. CLI option
-  cimg_usage(std::string("Check and Layout A LookUpTable.\n" \
+  cimg_usage(std::string("Hello to CImg.\n" \
   " It uses different GNU libraries (see --info option)\n\n" \
-  " usage: ./claLUT -h -I\n" \
-  "        ./claLUT -0 128 -1 253 -X true -Z 7 -o claLUT.png\n" \
+  " usage: ./hello_cimg  -h -I\n" \
+  "        ./hello_cimg  -o hello_cimg.png\n" \
+  "        ./hello_cimgX -o hello_cimg.png --show\n" \
   "\n version: "+std::string(VERSION)+"\n compilation date:" \
   ).c_str());//cimg_usage
 
