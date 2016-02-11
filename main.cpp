@@ -59,7 +59,8 @@ int main(int argc, char **argv)
   #if cimg_display!=0
   if(show) image.display("Hello CImg");
   #endif
-  image.save(file_o);
+
+  if(!file_o) image.save(file_o);
 
   return 0;
 }//main

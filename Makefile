@@ -1,5 +1,5 @@
 BIN=hello_cimg
-version=v0.0.4
+version=v0.0.5
 
 VERSION=-DVERSION=\"$(version)\"
 CIMG_LIB=-I../CImg -Wall -W -lm -ansi -pedantic -O3 -fno-tree-pre -Dcimg_use_vt100 -lpthread
@@ -26,4 +26,8 @@ doc:
 run:
 	echo;echo "Hello:"
 	./$(BIN) -o text.pnm
-	identify text.pnm
+	identify text.pnm #imagemagick
+
+runX:
+	echo;echo "HelloX:"
+	./$(BIN)X -o text.pnm
