@@ -23,6 +23,9 @@ int main(int argc, char **argv)
   "\n version: "+std::string(VERSION)+"\n compilation date:" \
   ).c_str());//cimg_usage
 
+  ///program options
+  const char *file_o    = cimg_option("-o",(char*)0,"output image");
+
   ///standard options
   #if cimg_display!=0
   const bool show_X=cimg_option("-X",true,NULL);//-X hidden option
@@ -40,6 +43,20 @@ int main(int argc, char **argv)
 
   //! print hello message on terminal
   std::cout<<"Hello CImg (C++)"<<std::endl;
+
+  //! a few colors
+  const unsigned char
+            // R   G   B
+    red[]   = {255,  0,  0},
+    green[] = {  0,255,  0},
+    blue [] = {  0,  0,255},
+    black[] = {  0,  0,  0},
+    white[] = {255,255,255};
+
+  CImg<unsigned char> image(128,64,0, 3);
+  image.draw_text(0,32,"Hello CImg (C++)",white);
+  image.print("image");
+  image.save(file_o);
 
   return 0;
 }//main
