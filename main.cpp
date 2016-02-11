@@ -53,9 +53,12 @@ int main(int argc, char **argv)
     black[] = {  0,  0,  0},
     white[] = {255,255,255};
 
-  CImg<unsigned char> image(128,64,0, 3);
+  CImg<unsigned char> image;
   image.draw_text(0,32,"Hello CImg (C++)",white);
   image.print("image");
+  #if cimg_display!=0
+  if(show) image.display("Hello CImg");
+  #endif
   image.save(file_o);
 
   return 0;
