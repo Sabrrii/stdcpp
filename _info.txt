@@ -1,0 +1,7 @@
+testing GitLab ...
+
+1. simple C++ code: using STL, argp, ... basic libraries used at GAP.
+2. compilation
+3. doxygen
+4. wiki
+
