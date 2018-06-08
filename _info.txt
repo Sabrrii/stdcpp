@@ -4,4 +4,5 @@ testing GitLab ...
 2. compilation
 3. doxygen
 4. wiki
+5. unity test
 
