@@ -31,4 +31,4 @@ RUN doxygen && ls -lah doc/html
 
 # File check
 RUN du -shc doc/html 
-RUN ls -lah
+RUN ls -lah && ./hello
