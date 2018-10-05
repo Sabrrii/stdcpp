@@ -19,7 +19,7 @@ WORKDIR /home/user
 RUN ls -lah /home
 
 # Build binary
-ADD Makefile hello.cpp ./
+ADD Makefile ArgParse.cpp ./
 #RUN ls -lah && g++ ArgParse.cpp -o ArgParseG++
 RUN make && ./ArgParse && ls -lah
 
