@@ -19,7 +19,7 @@ WORKDIR /home/user
 RUN ls -lah /home
 
 # Build binary
-ADD Makefile hello.cpp ./
+ADD Makefile hello.cpp Doxyfile ./
 RUN ls -lah
 RUN g++ hello.cpp -o helloG++
 RUN make && ./hello
