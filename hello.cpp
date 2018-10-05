@@ -7,6 +7,9 @@
 #include <iostream>       // std::cout
 
 //! hello starts here
+/**
+ * \warning \c argc and \c argv not used yet, see argp branch (e.g. git checkout argp)
+**/
 int main(int argc, char **argv)
 {
   //! print hello message on terminal

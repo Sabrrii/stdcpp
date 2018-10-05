@@ -10,7 +10,7 @@ FROM debian:latest
 MAINTAINER COUDERT Sebastien "sebastien.coudert@ganil.fr"
 
 # Update and install
-RUN apt-get update && apt-get install -y g++ build-essential  git doxygen graphviz
+RUN apt-get update && apt-get install -y g++ build-essential  doxygen graphviz git
 
 # Working directory
 RUN pwd
@@ -23,8 +23,10 @@ ADD Makefile hello.cpp ./
 RUN ls -lah
 RUN g++ hello.cpp -o helloG++
 RUN make && ./hello
+RUN ls -lah
 
 # Build documentation and push to wiki
-RUN doxygen -g && doxygen
+RUN doxygen
+RUN ls -lah doc/html
 #RUN git add 
 #RUN git push
