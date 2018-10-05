@@ -12,10 +12,15 @@ MAINTAINER COUDERT Sebastien "sebastien.coudert@ganil.fr"
 # Update and install
 #RUN apt-get update && apt-get install -y g++ git doxygen graphviz
 
-# Build binary
+# Working directory
 RUN pwd
+RUN mkdir -p /home/user
+WORKDIR /home/user
 RUN ls -lah /home
-RUN ls -lah /tmp
+
+# Build binary
+ADD Makefile hello.cpp
+RUN ls -lah
 #RUN make && ./hello
 
 # Build documentation and push to wiki
