@@ -10,12 +10,13 @@ FROM debian:latest
 MAINTAINER COUDERT Sebastien "sebastien.coudert@ganil.fr"
 
 # Update and install
-RUN apt-get update && apt-get install -y doxygen graphviz g++
+#RUN apt-get update && apt-get install -y g++ git doxygen graphviz
 
 # Build binary
-CMD pwd
-CMD ls
-RUN make && ./hello
+RUN pwd
+RUN ls -lah /home
+RUN ls -lah /tmp
+#RUN make && ./hello
 
 # Build documentation and push to wiki
 #RUN doxygen
