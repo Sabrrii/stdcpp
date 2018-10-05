@@ -13,20 +13,22 @@ MAINTAINER COUDERT Sebastien "sebastien.coudert@ganil.fr"
 RUN apt-get update && apt-get install -y g++ build-essential  doxygen graphviz git
 
 # Working directory
-RUN pwd
+#RUN pwd
 RUN mkdir -p /home/user
 WORKDIR /home/user
 RUN ls -lah /home
 
 # Build binary
-ADD Makefile hello.cpp Doxyfile ./
-RUN ls -lah
-RUN g++ hello.cpp -o helloG++
-RUN make && ./hello
-RUN ls -lah
+ADD Makefile hello.cpp ./
+#RUN ls -lah && g++ hello.cpp -o helloG++
+RUN make && ./hello && ls -lah
 
-# Build documentation and push to wiki
-RUN doxygen
-RUN ls -lah doc/html
+# Build documentation, convert and push to wiki
+ADD Doxyfile ./
+RUN doxygen && ls -lah doc/html
 #RUN git add 
 #RUN git push
+
+# File check
+RUN du -shc doc/html 
+RUN ls -lah
