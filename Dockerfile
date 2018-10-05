@@ -13,6 +13,8 @@ MAINTAINER COUDERT Sebastien "sebastien.coudert@ganil.fr"
 RUN apt-get update && apt-get install -y doxygen graphviz g++
 
 # Build binary
+CMD pwd
+CMD ls
 RUN make && ./hello
 
 # Build documentation and push to wiki
