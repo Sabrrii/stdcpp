@@ -1,6 +1,6 @@
 # Is performed before the scripts in the stages step
-before_script:  
-  - source /etc/profile
+#before_script:  
+#  - source /etc/profile
 
 # Defines stages which are to be executed
 stages:  
@@ -10,12 +10,10 @@ stages:
 run-build:  
   stage: build
   script:
-    - apt-get install -y libncurses5-dev libglib2.0-dev libgeoip-dev libtokyocabinet-dev zlib1g-dev libncursesw5-dev libbz2-dev
-    - autoreconf -fvi
-    - cp COPYING debian/copyright
-    - dpkg-buildpackage -us -uc
-    - mkdir build
-    - mv ../goaccess*.deb build/
+    - apt-get install -y doxygen
+    - cp hop debian/hop
+    - mkdir build/
+    - echo "hop gitlab-ci.yml" > build/hop.txt
 
   # This stage is only executed for new tags
   only:
@@ -25,4 +23,3 @@ run-build:
   artifacts:
     paths:
       - build/*
-
