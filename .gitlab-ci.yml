@@ -1,19 +1,19 @@
-# Is performed before the scripts in the stages step
-#before_script:  
-#  - source /etc/profile
+# Use the official gcc image
+image: gcc
 
-# Defines stages which are to be executed
-stages:  
-  - build
+before_script:
+    # Install build dependencies
+    - apt-get update && apt-get -y install make doxygen
 
 # Stage "build"
-run-build:  
-  stage: build
-  script:
-    - apt-get install -y doxygen
-    - cp hop debian/hop
-    - mkdir build/
-    - echo "hop gitlab-ci.yml" > build/hop.txt
+run-build:
+    # Build the application
+    stage: build
+    script:
+        - mkdir build
+        - cd build
+        - make
+        - echo "hop gitlab-ci.yml" > build/hop.txt
 
   # This stage is only executed for new tags
   only:
