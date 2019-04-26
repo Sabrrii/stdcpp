@@ -8,7 +8,8 @@
 #include <error.h>
 #include <argp.h>
 
-#include <string>
+#include <string.h>
+//#include <string> #for C++
 
 #define VERSION "v0.0.0"
 
@@ -26,6 +27,7 @@ static char doc[]=
 examples:\n\
   ArgParse --help\n\
   ArgParse -v\n\
+  ArgParse -v -i 12 -s XYZ\n\
   ArgParse -V\n\
   ArgParse --usage";
 
@@ -36,6 +38,8 @@ static char args_doc[] = "";
 static struct argp_option options[]=
 {
   {"verbose",  'v', 0, 0,           "Produce verbose output" },
+  {"integer",  'i', "VALUE", 0,     "get integer value" },
+  {"string",   's', "STRING", 0,    "get string" },
 //default options
   { 0 }
 };//options (CLI)
@@ -43,8 +47,12 @@ static struct argp_option options[]=
 //! [argp] Used by main to communicate with parse_option
 struct arguments
 {
-  //! verbose mode
+  //! verbose mode (boolean)
   int verbose;
+  //! integer value
+  int integer;
+  //! string value
+  char* string;
 };//arguments (CLI)
 
 //! [argp] Parse a single option
@@ -58,6 +66,12 @@ parse_option(int key, char *arg, struct argp_state *state)
     case 'v':
       arguments->verbose=1;
       break;
+    case 'i':
+      arguments->integer=atoi(arg);
+      break;
+    case 's':
+      arguments->string=arg;
+      break;
     default:
       return ARGP_ERR_UNKNOWN;
   }//switch
@@ -68,8 +82,10 @@ parse_option(int key, char *arg, struct argp_state *state)
 //! [argp] print argument values
 void print_args(struct arguments *p_arguments)
 {
-  printf (".verbose=%s\n"
+  printf (".verbose=%s\n.integer=%d\n.string=%s\n"
   , p_arguments->verbose?"yes":"no"
+  , p_arguments->integer
+  , p_arguments->string
   );
 }//print_args
 
@@ -85,9 +101,11 @@ int main(int argc, char **argv)
   //CLI arguments
   struct arguments arguments;
   arguments.verbose=0;
+  arguments.integer=123;
+  arguments.string="ABC";
 
 //! - print default option values (static)
-  if(0)
+  if(0)//0 or 1
   {
     printf("default values:\n");
     print_args(&arguments);
