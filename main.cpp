@@ -1,12 +1,13 @@
 /**
- * \file ArgParse.cpp
- * \brief ArgP minimal program (i.e. template)
+ * \file openmp.cpp
+ * \brief OpenMP minimal hello program (i.e. template)
  * \author Sebastien COUDERT
 **/
 
 //ArgP
 #include <error.h>
 #include <argp.h>
+#include <stdlib.h> //atoi
 
 #include <string.h>
 //#include <string> #for C++
@@ -21,15 +22,15 @@ const char *argp_program_version=VERSION;
 const char *argp_program_bug_address="sebastien.coudert@ganil.fr";
 //! [argp] documentation of program
 static char doc[]=
-   "ArgParse: ArgP minimal/template program\
-\n  ArgParse."VERSION"\
+   "openmp: OpenMP minimal/template program\
+\n  openmp."VERSION"\
 \n\
 examples:\n\
-  ArgParse --help\n\
-  ArgParse -v\n\
-  ArgParse -v -i 12 -s XYZ\n\
-  ArgParse -V\n\
-  ArgParse --usage";
+  openmp --help\n\
+  openmp -v\n\
+  openmp -v -i 12 -s XYZ\n\
+  openmp -V\n\
+  openmp --usage";
 
 //! [argp] A description of the arguments
 static char args_doc[] = "";
@@ -120,6 +121,8 @@ int main(int argc, char **argv)
     printf("command line option values:\n");
     print_args(&arguments);
   }//print default option values
+
+  printf("%s\n",arguments.string);
 
   return 0;
 }//main
