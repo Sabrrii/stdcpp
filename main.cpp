@@ -15,7 +15,7 @@
 //OpenMP
 #include <omp.h>
 
-#define VERSION "v0.0.1g"
+#define VERSION "v0.0.1"
 
 //Program option/documentation
 //{argp
@@ -53,10 +53,10 @@ struct arguments
 {
   //! verbose mode (boolean)
   int verbose;
-  //! integer value
-  int integer;
-  //! string value
-  char* string;
+  //! thread count
+  int threadCount;
+  //! display message
+  char* message;
 };//arguments (CLI)
 
 //! [argp] Parse a single option
@@ -71,10 +71,10 @@ parse_option(int key, char *arg, struct argp_state *state)
       arguments->verbose=1;
       break;
     case 'n':
-      arguments->integer=atoi(arg);
+      arguments->threadCount=atoi(arg);
       break;
     case 's':
-      arguments->string=arg;
+      arguments->message=arg;
       break;
     default:
       return ARGP_ERR_UNKNOWN;
@@ -86,10 +86,10 @@ parse_option(int key, char *arg, struct argp_state *state)
 //! [argp] print argument values
 void print_args(struct arguments *p_arguments)
 {
-  printf (".verbose=%s\n.integer=%d\n.string=%s\n"
+  printf (".verbose=%s\n.threadCount=%d\n.message=%s\n"
   , p_arguments->verbose?"yes":"no"
-  , p_arguments->integer
-  , p_arguments->string
+  , p_arguments->threadCount
+  , p_arguments->message
   );
 }//print_args
 
@@ -105,8 +105,8 @@ int main(int argc, char **argv)
   //CLI arguments
   struct arguments arguments;
   arguments.verbose=0;
-  arguments.integer=-1;
-  arguments.string="Hello OpenMP #";
+  arguments.threadCount=-1;
+  arguments.message="Hello OpenMP #";
 
 //! - print default option values (static)
   if(0)//0 or 1
@@ -125,15 +125,15 @@ int main(int argc, char **argv)
     print_args(&arguments);
   }//print default option values
 
-  if(arguments.integer>0)
+  if(arguments.threadCount>0)
   {//user number of thread
     omp_set_dynamic(0);
-    omp_set_num_threads(arguments.integer);
+    omp_set_num_threads(arguments.threadCount);
   }//user
   #pragma omp parallel
   {
     int ti=omp_get_thread_num(),tn=omp_get_num_threads();
-    printf("%s%d/%d.\n",arguments.string,ti,tn);
+    printf("%s%d/%d.\n",arguments.message,ti,tn);
   }//parallel section
   return 0;
 }//main
