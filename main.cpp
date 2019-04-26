@@ -12,7 +12,10 @@
 #include <string.h>
 //#include <string> #for C++
 
-#define VERSION "v0.0.1d"
+//OpenMP
+#include <omp.h>
+
+#define VERSION "v0.0.1e"
 
 //Program option/documentation
 //{argp
@@ -122,8 +125,10 @@ int main(int argc, char **argv)
     print_args(&arguments);
   }//print default option values
 
-  printf("%s\n",arguments.string);
-
+  #pragma omp parallel
+  {
+    int ti=omp_get_thread_num(),tn=omp_get_num_threads();
+    printf("%s%d/%d.\n",arguments.string,ti,tn);
+  }//parallel section
   return 0;
 }//main
-
