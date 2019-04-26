@@ -12,7 +12,7 @@
 #include <string.h>
 //#include <string> #for C++
 
-#define VERSION "v0.0.0"
+#define VERSION "v0.0.1d"
 
 //Program option/documentation
 //{argp
@@ -28,7 +28,7 @@ static char doc[]=
 examples:\n\
   openmp --help\n\
   openmp -v\n\
-  openmp -v -i 12 -s XYZ\n\
+  openmp -v -n 4 -s 'Hello_OpenMP_thread#'\n\
   openmp -V\n\
   openmp --usage";
 
@@ -39,8 +39,8 @@ static char args_doc[] = "";
 static struct argp_option options[]=
 {
   {"verbose",  'v', 0, 0,           "Produce verbose output" },
-  {"integer",  'i', "VALUE", 0,     "get integer value" },
-  {"string",   's', "STRING", 0,    "get string" },
+  {"count",    'n', "VALUE", 0,     "thread count (default -1 for dynamic number)" },
+  {"message",  's', "STRING", 0,    "display message" },
 //default options
   { 0 }
 };//options (CLI)
@@ -67,7 +67,7 @@ parse_option(int key, char *arg, struct argp_state *state)
     case 'v':
       arguments->verbose=1;
       break;
-    case 'i':
+    case 'n':
       arguments->integer=atoi(arg);
       break;
     case 's':
@@ -102,8 +102,8 @@ int main(int argc, char **argv)
   //CLI arguments
   struct arguments arguments;
   arguments.verbose=0;
-  arguments.integer=123;
-  arguments.string="ABC";
+  arguments.integer=-1;
+  arguments.string="Hello OpenMP";
 
 //! - print default option values (static)
   if(0)//0 or 1
