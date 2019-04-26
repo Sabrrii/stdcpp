@@ -1,3 +1,2 @@
 all:
-	g++ factory.cpp -o factory
-
+	g++ main.cpp -o factory
