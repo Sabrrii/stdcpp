@@ -15,7 +15,7 @@
 //OpenMP
 #include <omp.h>
 
-#define VERSION "v0.0.1e"
+#define VERSION "v0.0.1f"
 
 //Program option/documentation
 //{argp
@@ -125,10 +125,23 @@ int main(int argc, char **argv)
     print_args(&arguments);
   }//print default option values
 
-  #pragma omp parallel
-  {
-    int ti=omp_get_thread_num(),tn=omp_get_num_threads();
-    printf("%s%d/%d.\n",arguments.string,ti,tn);
-  }//parallel section
+  if(arguments.integer>0)
+  {//user number of thread
+    omp_set_dynamic(0);
+    omp_set_num_threads(arguments.integer);
+    #pragma omp parallel
+    {
+      int ti=omp_get_thread_num(),tn=omp_get_num_threads();
+      printf("%s%d/%d.\n",arguments.string,ti,tn);
+    }//parallel section
+  }//user
+  else
+  {//dynamic number of thread
+    #pragma omp parallel
+    {
+      int ti=omp_get_thread_num(),tn=omp_get_num_threads();
+      printf("%s%d/%d.\n",arguments.string,ti,tn);
+    }//parallel section
+  }//dynamic
   return 0;
 }//main
