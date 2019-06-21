@@ -1,7 +1,7 @@
 all: bin test
 
 bin:
-	g++ main.cpp -o factory && ./factory --help
+	g++ main.cpp -o factory && ./factory --help && ./factory --list
 
 test:
 	echo;echo "factory:"

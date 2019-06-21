@@ -14,7 +14,7 @@
 #include <string>         // std::string
 #include <iostream>       // std::cout
 
-#define VERSION "v0.0.7e"
+#define VERSION "v0.0.7"
 
 //Program option/documentation
 //{argp
@@ -41,6 +41,7 @@ static char args_doc[] = "";
 static struct argp_option options[]=
 {
   {"verbose",  'v', 0, 0,         "Produce verbose output" },
+  {"list",     'l', 0, 0,         "Produce factory lists" },
   {"module",   'd', "module", 0,  "create the module from factory" },
 //default options
   { 0 }
@@ -51,6 +52,8 @@ struct arguments
 {
   //! verbose mode
   int verbose;
+  //! list
+  int list;
   //! module value
   std::string module;
 };//arguments (CLI)
@@ -66,6 +69,9 @@ parse_option(int key, char *arg, struct argp_state *state)
     case 'v':
       arguments->verbose=1;
       break;
+    case 'l':
+      arguments->list=1;
+      break;
     case 'd':
       arguments->module=arg;
       break;
@@ -79,8 +85,9 @@ parse_option(int key, char *arg, struct argp_state *state)
 //! [argp] print argument values
 void print_args(struct arguments *p_arguments)
 {
-  printf (".verbose=%s\n.module=\"%s\"\n"
+  printf (".verbose=%s\n.list=%s\n.module=\"%s\"\n"
   , p_arguments->verbose?"yes":"no"
+  , p_arguments->list?"yes":"no"
   , p_arguments->module.c_str()
   );
 }//print_args
@@ -141,6 +148,15 @@ class DeviceFactory
     std::cerr<<"Device name is unknown, i.e. \""<<name<<"\"."<<std::endl;
     return NULL;
   }//NewDevice
+  static std::string List(void)
+  {
+    std::string list;
+    list="Virtex6";
+    list+=", V6_NEDA";
+    list+=".";
+    return list;
+  }
+
 };//DeviceFactory
 
 
@@ -237,8 +253,17 @@ class ComputerFactory
     if(name == "NumExo2_error")
       return new NumExo2_error;
     std::cerr<<"Module name is unknown, i.e. \""<<name<<"\"."<<std::endl;
+    std::cerr<<"  should be one of the following: "<<ComputerFactory::List()<<std::endl;
     return NULL;
   }//NewComputer
+  static std::string List(void)
+  {
+    std::string list;
+    list="laptop, desktop";
+    list+=", NumExo2_ExoGam, NumExo2_NEDA, NumExo2_error";
+    list+=".";
+    return list;
+  }
 };//ComputerFactory
 
 //}factory
@@ -250,6 +275,7 @@ int main(int argc, char **argv)
   //CLI arguments
   struct arguments arguments;
   arguments.verbose=0;
+  arguments.list=0;
   arguments.module="none";
 
 //! - print default option values (static)
@@ -282,6 +308,14 @@ int main(int argc, char **argv)
     Device *v6=DeviceFactory::NewDevice("Virtex6"); if(v6!=NULL)  v6->Run();
     Device *v6n=DeviceFactory::NewDevice("V6_NEDA");if(v6n!=NULL) v6n->Run();
   }//factory objects
+
+  ///show factory lists
+  if(arguments.list)
+  {
+    std::cout<<"Computer list: "<<ComputerFactory::List()<<std::endl;
+    std::cout<<"Virtex6  list: "<<DeviceFactory::List()  <<std::endl;
+    return 0;
+  }
 
   std::cout<<"computer=\""<<arguments.module<<"\""<<std::endl;
   Computer* computer=ComputerFactory::NewComputer(arguments.module);
