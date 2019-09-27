@@ -7,6 +7,7 @@
 //ArgP
 #include <error.h>
 #include <argp.h>
+#include <stdlib.h>     /* atoi */
 
 #include <string.h>
 //#include <string> #for C++
