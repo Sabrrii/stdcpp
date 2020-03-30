@@ -32,3 +32,4 @@ RUN doxygen && ls -lah doc/html
 # File check
 RUN du -shc doc/html 
 RUN ls -lah && ./hello.C++
+RUN ls -lah /builds/SebastienCOUDERT/stdcpp
