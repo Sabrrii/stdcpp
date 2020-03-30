@@ -26,10 +26,15 @@ RUN make && ./hello.C++ && ls -lah
 # Build documentation, convert and push to wiki
 ADD Doxyfile ./
 RUN doxygen && ls -lah doc/html
+RUN git branch 
 #RUN git add 
 #RUN git push
 
 # File check
+RUN pwd
 RUN du -shc doc/html 
 RUN ls -lah && ./hello.C++
 RUN ls -lah /builds/SebastienCOUDERT/stdcpp
+WORKDIR /builds/SebastienCOUDERT/stdcpp
+RUN git branch 
+
