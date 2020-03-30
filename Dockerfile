@@ -19,16 +19,16 @@ WORKDIR /home/user
 RUN ls -lah /home
 
 # Build binary
-ADD Makefile hello.cpp ./
+ADD Makefile main.cpp ./
 #RUN ls -lah && g++ hello.cpp -o helloG++
-RUN make && ./hello && ls -lah
+RUN make && ./hello.C++ && ls -lah
 
 # Build documentation, convert and push to wiki
-ADD Doxyfile ./
-RUN doxygen && ls -lah doc/html
+##ADD Doxyfile ./
+##RUN doxygen && ls -lah doc/html
 #RUN git add 
 #RUN git push
 
 # File check
 RUN du -shc doc/html 
-RUN ls -lah && ./hello
+RUN ls -lah && ./hello.C++
