@@ -26,11 +26,12 @@ RUN make && ./hello.C++ && ls -lah
 # Build documentation, convert and push to wiki
 ADD Doxyfile ./
 RUN doxygen && ls -lah doc/html
-RUN git branch 
-#push to current repo. (instead of wiki)
-RUN git add doc
-RUN git commit -am 'add doc'
-RUN git push
+## fail: no .git ##
+##RUN git branch 
+###push to current repo. (instead of wiki)
+##RUN git add doc
+##RUN git commit -am 'add doc'
+##RUN git push
 
 # File check
 RUN pwd
