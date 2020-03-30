@@ -30,5 +30,5 @@ RUN make && ./hello.C++ && ls -lah
 #RUN git push
 
 # File check
-RUN du -shc doc/html 
+##RUN du -shc doc/html 
 RUN ls -lah && ./hello.C++
