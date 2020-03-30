@@ -27,14 +27,12 @@ RUN make && ./hello.C++ && ls -lah
 ADD Doxyfile ./
 RUN doxygen && ls -lah doc/html
 RUN git branch 
-#RUN git add 
-#RUN git push
+#push to current repo. (instead of wiki)
+RUN git add doc
+RUN git commit -am 'add doc'
+RUN git push
 
 # File check
 RUN pwd
 RUN du -shc doc/html 
 RUN ls -lah && ./hello.C++
-RUN ls -lah /builds/SebastienCOUDERT/stdcpp
-WORKDIR /builds/SebastienCOUDERT/stdcpp
-RUN git branch 
-
