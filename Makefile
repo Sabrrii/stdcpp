@@ -1,7 +1,17 @@
-all: bin test
+all: bin doc run
 
 bin:
-	g++ main.cpp -o factory && ./factory --help && ./factory --list
+	$(CXX) main.cpp -o factory && ./factory --help && ./factory --list
+	./factory --help > factory_help.output
+
+doc:
+	doxygen && ls -lah doc/html
+
+run:
+	echo;echo "factory:"
+	./factory --list
+	./factory -d laptop; echo
+	./factory -d desktop; echo
 
 test:
 	echo;echo "factory:"
