@@ -6,8 +6,10 @@ before_script:
   - g++ --version
   - which g++
   ##git
-  - git config --global user.email "sebastien.coudert@ganil.fr"
-  - git config --global user.name  "Sebastien COUDERT"
+  - git config --global user.email "$GITLAB_USER_EMAIL"
+  - git config --global user.name  "$GITLAB_USER_NAME"
+  ##docker container
+  - printenv
 
 build:
   script:
@@ -15,15 +17,15 @@ build:
   - uname -m
   - printenv
   ##imported repository
-  - cd /builds/SebastienCOUDERT/stdcpp
+  - cd /builds/$CI_PROJECT_PATH
   - ls
-  - grep url /builds/SebastienCOUDERT/stdcpp/.git/config
+  - grep url /builds/$CI_PROJECT_PATH/.git/config
   - git branch -a
-  - git checkout -b CI_hello
+  - git checkout -b CI_$CI_BUILD_REF_NAME
   ##repository
   - mkdir -p /home/user
   - cd /home/user/
-  - git clone /builds/SebastienCOUDERT/stdcpp .
+  - git clone /builds/$CI_PROJECT_PATH .
   - git branch -a
   - ls *
 
@@ -39,8 +41,8 @@ build:
   - git add hello.txt
   - git commit -am 'CI output'
   ##push
-  - cd /builds/SebastienCOUDERT/stdcpp
-  - git checkout hello
+  - cd /builds/$CI_PROJECT_PATH
+  - git checkout $CI_BUILD_REF_NAME
   - cd /home/user/
   - git push
 
