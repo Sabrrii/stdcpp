@@ -9,8 +9,10 @@ before_script:
 build:
   script:
   - uname -m
-  - ls /builds/SebastienCOUDERT/stdcpp
+  - cd /builds/SebastienCOUDERT/stdcpp
+  - ls
   - grep url /builds/SebastienCOUDERT/stdcpp/.git/config
+  - git branch -a
   ##repository
   - mkdir -p /home/user
   - cd /home/user/
