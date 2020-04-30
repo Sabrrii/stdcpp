@@ -11,7 +11,9 @@ before_script:
 
 build:
   script:
+  ##docker container
   - uname -m
+  ##imported repository
   - cd /builds/SebastienCOUDERT/stdcpp
   - ls
   - grep url /builds/SebastienCOUDERT/stdcpp/.git/config
@@ -23,6 +25,7 @@ build:
   - git clone /builds/SebastienCOUDERT/stdcpp .
   - git branch -a
   - ls *
+
   ##build binary
   - make
   ##run binary
@@ -30,8 +33,13 @@ build:
   - ls *
   ##documentation
   - doxygen && ls -lah doc/html
-  ##push
+
+  ##commit
   - git add hello.txt
   - git commit -am 'CI output'
+  ##push
+  - cd /builds/SebastienCOUDERT/stdcpp
+  - git checkout hello
+  - cd /home/user/
   - git push
 
