@@ -2,7 +2,7 @@ image: debian:latest
 
 before_script:
   ##g++
-  - apt-get update -qq && apt-get install -y g++ build-essential  doxygen graphviz git
+  - apt-get update -qq && apt-get install -y g++ build-essential  doxygen graphviz  git
   - g++ --version
   - which g++
 
@@ -11,13 +11,14 @@ build:
   - uname -m
   - ls /builds/SebastienCOUDERT/stdcpp
   - grep url /builds/SebastienCOUDERT/stdcpp/.git/config
+  ##repository
   - mkdir -p /home/user
   - cd /home/user/
   - git clone /builds/SebastienCOUDERT/stdcpp .
-  - git checkout hello
+  - git branch -a
   - ls *
+  ##build
   - make
   - ./hello.C++ > hello.txt
   - ls *
-
 
