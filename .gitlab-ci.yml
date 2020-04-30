@@ -1,16 +1,6 @@
 image: debian:latest
 
 before_script:
-  ##SSH
-  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git -y )'
-  - eval $(ssh-agent -s)
-  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-  - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
-  - ssh-keyscan gitlab.in2p3.fr >> ~/.ssh/known_hosts
-  - chmod 644 ~/.ssh/known_hosts
-  - git config --global user.email "sebastien.coudert@ganil.fr"
-  - git config --global user.name  "Sebastien COUDERT"
   ##g++
   - apt-get update -qq && apt-get install -y g++ build-essential  doxygen graphviz git
   - g++ --version
@@ -21,7 +11,7 @@ build:
   - uname -m
   - mkdir -p /home/user
   - cd /home/user/
-  - git clone git@gitlab.in2p3.fr:SebastienCOUDERT/stdcpp.git .
+  - git clone /builds/SebastienCOUDERT/stdcpp .
   - ls *
   - g++ main.cpp -o hello.C++ && ./hello.C++
   - ./hello.C++ > hello.txt
