@@ -20,10 +20,13 @@ build:
   - git clone /builds/SebastienCOUDERT/stdcpp .
   - git branch -a
   - ls *
-  ##build
+  ##build binary
   - make
+  ##run binary
   - ./hello.C++ > hello.txt
   - ls *
+  ##documentation
+  - doxygen && ls -lah doc/html
   ##push
   - git add hello.txt
   - git commit -am 'CI output'
