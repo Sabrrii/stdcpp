@@ -13,6 +13,7 @@ build:
   script:
   ##docker container
   - uname -m
+  - printenv
   ##imported repository
   - cd /builds/SebastienCOUDERT/stdcpp
   - ls
