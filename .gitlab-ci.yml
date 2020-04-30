@@ -24,4 +24,8 @@ build:
   - make
   - ./hello.C++ > hello.txt
   - ls *
+  ##push
+  - git add hello.txt
+  - git commit -am 'CI output'
+  - git push
 
