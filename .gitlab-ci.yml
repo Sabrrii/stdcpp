@@ -10,7 +10,7 @@ build:
   - uname -m
   - mkdir -p /home/user
   - cd /home/user/
-  - git clone https://gitlab.in2p3.fr/SebastienCOUDERT/stdcpp.git .
+  - git clone git@gitlab.in2p3.fr:SebastienCOUDERT/stdcpp.git .
   - ls *
   - g++ main.cpp -o hello.C++ && ./hello.C++
   - ./hello.C++ > hello.txt
