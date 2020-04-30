@@ -1,0 +1,15 @@
+image: debian:latest
+
+stages:
+  - build
+
+build:
+  script: 
+  - apt-get update && apt-get install -y g++ build-essential  doxygen graphviz git
+  - mkdir -p /home/user
+  - cd /home/user/
+  - /bin/echo -e -n '#include <iostream>\nint main(void){std::cout<<"Hello C++"<<std::endl;return 0;}\n' > main.cpp
+  - g++ main.cpp -o hello.C++ && ./hello.C++
+  - ./hello.C++ > hello.txt
+  - ls *
+
