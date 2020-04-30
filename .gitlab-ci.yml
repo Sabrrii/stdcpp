@@ -10,7 +10,8 @@ build:
   - uname -m
   - mkdir -p /home/user
   - cd /home/user/
-  - /bin/echo -e -n '#include <iostream>\nint main(void){std::cout<<"Hello C++"<<std::endl;return 0;}\n' > main.cpp
+  - git clone https://gitlab.in2p3.fr/SebastienCOUDERT/stdcpp.git .
+  - ls *
   - g++ main.cpp -o hello.C++ && ./hello.C++
   - ./hello.C++ > hello.txt
   - ls *
