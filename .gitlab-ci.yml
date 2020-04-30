@@ -5,6 +5,9 @@ before_script:
   - apt-get update -qq && apt-get install -y g++ build-essential  doxygen graphviz  git
   - g++ --version
   - which g++
+  ##git
+  - git config --global user.email "sebastien.coudert@ganil.fr"
+  - git config --global user.name  "Sebastien COUDERT"
 
 build:
   script:
