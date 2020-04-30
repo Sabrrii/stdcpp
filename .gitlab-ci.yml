@@ -1,11 +1,12 @@
 image: debian:latest
 
-stages:
-  - build
+before_script:
+  - apt-get update -qq && apt-get install -y g++ build-essential  doxygen graphviz git
+  - g++ --version
+  - which g++
 
 build:
   script: 
-  - apt-get update && apt-get install -y g++ build-essential  doxygen graphviz git
   - mkdir -p /home/user
   - cd /home/user/
   - /bin/echo -e -n '#include <iostream>\nint main(void){std::cout<<"Hello C++"<<std::endl;return 0;}\n' > main.cpp
