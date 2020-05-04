@@ -1,0 +1,21 @@
+Usage: factory [OPTION...] 
+factory: factory program based on factory design pattern
+  factory.v0.0.7
+examples:
+  factory --help
+  factory -v
+  factory -V
+  factory -d laptop
+  factory --usage
+
+  -d, --module=module        create the module from factory
+  -l, --list                 Produce factory lists
+  -v, --verbose              Produce verbose output
+  -?, --help                 Give this help list
+      --usage                Give a short usage message
+  -V, --version              Print program version
+
+Mandatory or optional arguments to long options are also mandatory or optional
+for any corresponding short options.
+
+Report bugs to sebastien.coudert@ganil.fr.
