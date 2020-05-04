@@ -4,6 +4,9 @@
 
 cb=`git branch | grep '*' | sed 's/\*//'`
 ob=`git branch | grep -v '*' | grep -v 'dev_'`
+
+ob=`echo $ob | cut -d' ' -f1`
+
 comment=\"$1\"
 shift
 
@@ -20,7 +23,7 @@ do
   #get files from reference branch
   git checkout $cb -- $*
   #compile/run/doc ... to update
-  make
+#  make
   #almost generic: run script to specify
   if((has_readme==1))
   then
@@ -29,6 +32,6 @@ do
   #commit
   git commit -am $comment
   #push to origin, e.g. GitLab
-  git push
+#  git push
 done
 
