@@ -1,25 +1,45 @@
+image: debian:latest
+
 before_script:
-    # Install build dependencies
-    - apt-get update && apt-get -y install make doxygen
+  ##g++
+  - apt-get update -qq && apt-get install -y g++ build-essential  doxygen graphviz  git
+  - g++ --version
+  - which g++
+  ##git
+  - git config --global user.email "$GITLAB_USER_EMAIL"
+  - git config --global user.name  "$GITLAB_USER_NAME"
+  ##docker container
+#  - printenv
 
-stages:
-  - build
-
-# Stage "build"
-run-build:
-  # Build the application
-  stage: build
+build:
   script:
-    - mkdir build
-    - cd build
-    - make
-    - echo "hop gitlab-ci.yml" > build/hop.txt
+  ##docker container
+  - uname -m
+#  - printenv
+  ##imported repository
+  - cd /builds/$CI_PROJECT_PATH
+  - ls
+  - grep url /builds/$CI_PROJECT_PATH/.git/config
+  - git branch -a
+  - git checkout -b CI_$CI_BUILD_REF_NAME
+  ##repository
+  - mkdir -p /home/user
+  - cd /home/user/
+  - git clone /builds/$CI_PROJECT_PATH .
+  - git branch -a
+  - ls *
 
-  # This stage is only executed for new tags
-  only:
-    - tags
+  ##make all e.g. bin, doc, run, ...
+  - make
+  - ls *
 
-  # The files which are to be made available in GitLab
-  artifacts:
-    paths:
-      - build/*
+  ##commit
+  - git add $CI_BUILD_REF_NAME'_help.output'
+  - git add doc/html/index.html
+  - git commit -am 'CI output'
+  ##push
+  - cd /builds/$CI_PROJECT_PATH
+  - git checkout $CI_BUILD_REF_NAME
+  - cd /home/user/
+  - git push
+
