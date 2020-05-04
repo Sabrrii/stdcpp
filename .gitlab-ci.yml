@@ -8,41 +8,58 @@ before_script:
   ##git
   - git config --global user.email "$GITLAB_USER_EMAIL"
   - git config --global user.name  "$GITLAB_USER_NAME"
+  ##boost
+  - apt-get install -y libboost-dev
   ##docker container
-  - printenv
+#  - printenv
 
 build:
+  stage: build
   script:
   ##docker container
   - uname -m
-  - printenv
+#  - printenv
   ##imported repository
-  - cd /builds/$CI_PROJECT_PATH
+  - cd $CI_PROJECT_DIR
   - ls
-  - grep url /builds/$CI_PROJECT_PATH/.git/config
+  - grep url $CI_PROJECT_DIR/.git/config
   - git branch -a
   - git checkout -b CI_$CI_BUILD_REF_NAME
   ##repository
   - mkdir -p /home/user
   - cd /home/user/
-  - git clone /builds/$CI_PROJECT_PATH .
+  - git clone $CI_PROJECT_DIR .
   - git branch -a
   - ls *
 
-  ##build binary
+  ##make all e.g. bin, doc, run, ...
   - make
-  ##run binary
-  - ./hello.C++ > hello.txt
   - ls *
-  ##documentation
-  - doxygen && ls -lah doc/html
 
   ##commit
-  - git add hello.txt
+  - git add VERSION $CI_BUILD_REF_NAME'_help.output'
+  - git add doc/html/index.html
+  - uname -m > ARCH.txt
+  - git add ARCH.txt
   - git commit -am 'CI output'
   ##push
   - cd /builds/$CI_PROJECT_PATH
   - git checkout $CI_BUILD_REF_NAME
+  - git branch
   - cd /home/user/
   - git push
+  #artifacts dir.
+  - cd $CI_PROJECT_DIR
+  - git checkout CI_$CI_BUILD_REF_NAME
+  - ls $CI_PROJECT_DIR
+  - echo $CI_PROJECT_DIR
+
+  artifacts:
+    expose_as: 'built in container'
+    paths:
+    - ARCH.txt
+    - VERSION
+#    - *_help.output
+    - doc/html/index.html
+
 
