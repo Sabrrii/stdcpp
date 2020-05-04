@@ -1,0 +1,21 @@
+Usage: hello_openmp [OPTION...] 
+openmp: OpenMP minimal/template program
+  openmp.v0.0.1
+examples:
+  openmp --help
+  openmp -v
+  openmp -v -n 4 -s 'Hello_OpenMP_thread#'
+  openmp -V
+  openmp --usage
+
+  -n, --count=VALUE          thread count (default -1 for dynamic number)
+  -s, --message=STRING       display message
+  -v, --verbose              Produce verbose output
+  -?, --help                 Give this help list
+      --usage                Give a short usage message
+  -V, --version              Print program version
+
+Mandatory or optional arguments to long options are also mandatory or optional
+for any corresponding short options.
+
+Report bugs to sebastien.coudert@ganil.fr.
