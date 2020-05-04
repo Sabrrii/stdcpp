@@ -1,14 +1,15 @@
+BIN=argp
+
 all: bin doc run
 
 bin:
-	$(CXX) main.cpp -o ArgParse && ./ArgParse --help
-	./ArgParse --help > ArgParse_help.output
+	$(CXX) main.cpp -o $(BIN) && ./$(BIN) --help
+	./$(BIN) --help > $(BIN)_help.output && ./$(BIN) --version > VERSION
 
 doc:
 	doxygen && ls -lah doc/html
 
 run:
 	echo;echo "ArgParse:"
-	./ArgParse -v -i 12 -s XYZ
-
+	./$(BIN) -v -i 12 -s XYZ
 
