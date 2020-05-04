@@ -15,6 +15,7 @@ echo 'other stable branches='$ob
 
 #case of almost generic file, e.g. README.md 
 has_readme=` echo $* | grep 'README.md' | wc -l`
+has_gitlabCI=` echo $* | grep '\.gitlab-ci\.yml' | wc -l`
 
 ##exit
 
@@ -31,9 +32,16 @@ do
   then
     ./README.sh
   fi
+  if((has_gitlabCI==1))
+  then
+    ./gitlab-ci.sh
+  fi
   #commit
   git commit -am "$comment"
   #push to origin, e.g. GitLab
   git push
 done
+
+#go back to reference branch
+git checkout $cb -f
 

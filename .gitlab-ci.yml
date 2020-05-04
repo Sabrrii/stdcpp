@@ -38,7 +38,7 @@ build:
 
   ##commit
   - git add VERSION $CI_BUILD_REF_NAME'_help.output'
-  - git add doc/html/index.html
+  - git add doc/html
   - uname -m > ARCH.txt
   - git add ARCH.txt
   - git commit -am 'CI output'
@@ -59,7 +59,7 @@ build:
     paths:
     - ARCH.txt
     - VERSION
-#    - *_help.output
-    - doc/html/index.html
+    - hello_help.output
+    - doc/html
 
 
