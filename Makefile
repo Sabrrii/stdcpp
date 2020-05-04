@@ -1,3 +1,4 @@
+#main binary name should be consistent with CI, e.g. name of the branch (see .gitlab-ci.yml)
 BIN=argp
 
 all: bin doc run
