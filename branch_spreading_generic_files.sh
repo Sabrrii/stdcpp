@@ -37,3 +37,6 @@ do
   git push
 done
 
+#go back to reference branch
+git checkout $cb -f
+
