@@ -1,24 +1,27 @@
+#main binary name should be consistent with CI, e.g. name of the branch (see .gitlab-ci.yml)
+BIN=factory
+
 all: bin doc run
 
 bin:
-	$(CXX) main.cpp -o factory && ./factory --help && ./factory --list
-	./factory --help > factory_help.output
+	$(CXX) main.cpp -o $(BIN) && ./$(BIN) --help && ./factory --list
+	./$(BIN) --help > $(BIN)_help.output && ./$(BIN) --version > VERSION
 
 doc:
 	doxygen && ls -lah doc/html
 
 run:
 	echo;echo "factory:"
-	./factory --list
-	./factory -d laptop; echo
-	./factory -d desktop; echo
+	./$(BIN) --list
+	./$(BIN) -d laptop; echo
+	./$(BIN) -d desktop; echo
 
 test:
 	echo;echo "factory:"
-	./factory -d laptop; echo
-	./factory -d desktop; echo
-	./factory -d NumExo2_ExoGam; echo
+	./$(BIN) -d laptop; echo
+	./$(BIN) -d desktop; echo
+	./$(BIN) -d NumExo2_ExoGam; echo
 	echo;echo "errors:"
-	./factory -d UnKnown; echo
-	./factory -d NumExo2_error; echo
+	./$(BIN) -d UnKnown; echo
+	./$(BIN) -d NumExo2_error; echo
 
