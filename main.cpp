@@ -196,36 +196,40 @@ class Desktop: public Computer
 };//Desktop
 
 //! numexo2 module
+template <typename T>
 class NumExo2: public Computer
 {
  protected:
   //! Virtex6 device (from factory)
   Device *v6;
+  T id;
  public:
   //! constructor
   //* \note do not instanciate especially v6 */
-  NumExo2() {set_name("NumExo2");}
+  NumExo2() {set_name("NumExo2");id=(T)12.34;}
   virtual void create_v6(std::string device_name) {v6=DeviceFactory::NewDevice(device_name);}
-  virtual void Run()  {std::cout<<name<<" run"<<std::endl;mOn = true; if(v6!=NULL) v6->Run(); else std::cerr<<"Virtex6 is not instanciated (may be name error)"<<std::endl; }
+  virtual void Run()  {std::cout<<name<<" run #"<<id<<std::endl;mOn = true; if(v6!=NULL) v6->Run(); else std::cerr<<"Virtex6 is not instanciated (may be name error)"<<std::endl; }
   void Stop() {mOn = false;}
+  virtual T getId() {return id;}
+  virtual void setId(T id_) {id=id_;}
   virtual ~NumExo2() {}
  private:
   bool mOn;//Whether or not the machine has been turned on
 };//NumExo2
-class NumExo2_ExoGam: public NumExo2
+class NumExo2_ExoGam: public NumExo2<int>
 {
  public:
   NumExo2_ExoGam() {set_name("NumExo2_ExoGam");create_v6("Virtex6");}
   virtual ~NumExo2_ExoGam() {}
 };//NumExo2_ExoGam
-class NumExo2_NEDA: public NumExo2
+class NumExo2_NEDA: public NumExo2<float>
 {
  public:
   NumExo2_NEDA() {set_name("NumExo2_NEDA");create_v6("V6_NEDA");}
 //  void Run()  {std::cout<<name<<" run"<<std::endl; }
   virtual ~NumExo2_NEDA() {}
 };//NumExo2_NEDA
-class NumExo2_error: public NumExo2
+class NumExo2_error: public NumExo2<int>
 {
  public:
   NumExo2_error() {set_name("NumExo2_error");create_v6("V6_error");}
@@ -296,14 +300,14 @@ int main(int argc, char **argv)
   }//print default option values
 
 
-  if(0)
+  if(false)
   {
     Virtex6 v6;      v6.Run();
     V6_NEDA v6n;     v6n.Run();
     Laptop laptop;   laptop.Run();
     Desktop desktop; desktop.Run();
   }//objects
-  if(0)
+  if(false)
   {
     Device *v6=DeviceFactory::NewDevice("Virtex6"); if(v6!=NULL)  v6->Run();
     Device *v6n=DeviceFactory::NewDevice("V6_NEDA");if(v6n!=NULL) v6n->Run();
