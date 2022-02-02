@@ -1,5 +1,9 @@
 image: debian:latest
 
+stages:
+    - build
+    - deploy
+
 before_script:
   ##g++
   - apt-get update -qq && apt-get install -y g++ build-essential  doxygen graphviz  git
@@ -52,8 +56,8 @@ build:
   - cd $CI_PROJECT_DIR
   - git checkout CI_$CI_BUILD_REF_NAME
   - ls $CI_PROJECT_DIR
-  - echo $CI_PROJECT_DIR
-  - git push --set-upstream origin CI_hello
+#  - echo $CI_PROJECT_DIR
+#  - git push --set-upstream origin CI_hello
 
   artifacts:
     expose_as: 'built in container'
@@ -64,6 +68,7 @@ build:
     - doc/html
 
 pages:
+  stage: deploy
   script:
   - pwd
   - ls
