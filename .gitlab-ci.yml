@@ -53,6 +53,7 @@ build:
   - git checkout CI_$CI_BUILD_REF_NAME
   - ls $CI_PROJECT_DIR
   - echo $CI_PROJECT_DIR
+  - git push
 
   artifacts:
     expose_as: 'built in container'
