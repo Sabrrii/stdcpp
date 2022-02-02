@@ -73,7 +73,9 @@ pages:
   - pwd
   - mkdir public/
 #  - /bin/echo -e -n "<html>\n<head>\n<title>GitLab//Pages</title>\n</head>\n<body>\n<h1>HTML pages</h1>\n</body>\n</html>\n" > public/index.html
-  - mv doc/html/* public
+  - mv doc/html/* public/
+  - mkdir public/build/
+  - mv ARCH.txt VERSION hello_help.output public/build/
   - echo "firefox https://sebastiencoudert.pages.in2p3.fr/stdcpp/"
   artifacts:
     paths:
