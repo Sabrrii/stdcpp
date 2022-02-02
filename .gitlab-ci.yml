@@ -71,7 +71,8 @@ pages:
   stage: deploy
   script:
   - pwd
-  - ls
+  - mkdir public/
+  - ls * doc/*
   - /bin/echo -e -n "<html>\n<head>\n<title>GitLab//Pages</title>\n</head>\n<body>\n<h1>HTML pages</h1>\n</body>\n</html>\n" > public/index.html
   artifacts:
     paths:
