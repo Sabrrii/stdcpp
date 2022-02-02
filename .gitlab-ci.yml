@@ -63,4 +63,14 @@ build:
     - hello_help.output
     - doc/html
 
+pages:
+  script:
+  - pwd
+  - ls
+  - /bin/echo -e -n "<html>\n<head>\n<title>GitLab//Pages</title>\n</head>\n<body>\n<h1>HTML pages</h1>\n</body>\n</html>\n" > public/index.html
+  artifacts:
+    paths:
+    - public
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
 
