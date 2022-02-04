@@ -71,6 +71,7 @@ pages:
   stage: deploy
   script:
   - pwd
+  - env
   - mkdir public/
 #  - /bin/echo -e -n "<html>\n<head>\n<title>GitLab//Pages</title>\n</head>\n<body>\n<h1>HTML pages</h1>\n</body>\n</html>\n" > public/index.html
   ##doxygen output
