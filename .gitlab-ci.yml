@@ -73,10 +73,23 @@ pages:
   - pwd
   - mkdir public/
 #  - /bin/echo -e -n "<html>\n<head>\n<title>GitLab//Pages</title>\n</head>\n<body>\n<h1>HTML pages</h1>\n</body>\n</html>\n" > public/index.html
+  ##doxygen output
   - mv doc/html/* public/
-  - mkdir public/build/
-  - mv ARCH.txt VERSION hello_help.output public/build/
+  ##built with CI
+  - mkdir public/built/
+  - /bin/echo -e -n "<html>\n<head>\n<title>GitLab//Pages/CI/built</title>\n</head>\n<body>\n" > public/built/index.html
+  - /bin/echo -e -n "<h1>CI architecture</h1>\n<pre>\n" >> public/built/index.html
+  - cat ARCH.txt >> public/built/index.html
+  - /bin/echo -e -n "</pre>\n\n<h1>program</h1>\n" >> public/built/index.html
+  - /bin/echo -e -n "<h2>version</h2>\n<pre>\n" >> public/built/index.html
+  - cat VERSION >> public/built/index.html
+  - /bin/echo -e -n "</pre>\n\n<h2>help</h2>\n<pre>\n" >> public/built/index.html
+  - cat hello_help.output >> public/built/index.html
+  - /bin/echo -e -n "</pre>\n\n</body>\n</html>\n" >> public/built/index.html
+  - mv ARCH.txt VERSION hello_help.output public/built/
+  ##output links
   - echo "firefox https://sebastiencoudert.pages.in2p3.fr/stdcpp/"
+  - echo "firefox https://sebastiencoudert.pages.in2p3.fr/stdcpp/built/"
   artifacts:
     paths:
     - public
