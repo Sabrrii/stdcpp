@@ -15,7 +15,7 @@
 #include <vector>         // std::vector
 #include <iostream>       // std::cout
 
-#define VERSION "v0.0.8h"
+#define VERSION "v0.0.8i"
 
 //Program option/documentation
 //{argp
@@ -208,6 +208,7 @@ class DeviceFactory
     std::cerr<<"  should be one of the following: "<<DeviceFactory::List()<<std::endl;
     return NULL;
   }//NewDevice
+//  FACTORY_NEWTYPE(Device)
   static Device *NewDevice(const std::string &name)
   {
     std::vector<std::string> factory_types;
@@ -331,13 +332,6 @@ class ComputerFactory
     std::vector<std::string> factory_types;
     return NewComputer(name, factory_types);
   }//NewComputer
-/*
-  //! get type list in factory
-  static void get_factory_types(std::vector<std::string> &factory_types)
-  {
-    ComputerFactory::NewComputer("list types",factory_types);
-  }//get_factory_types
-*/
   FACTORY_TYPES(ComputerFactory,Computer)
   FACTORY_LIST()
 };//ComputerFactory
