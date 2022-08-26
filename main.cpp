@@ -102,6 +102,33 @@ static struct argp argp = { options, parse_option, args_doc, doc };
 //{factory
 
 //! list for factories
+/**
+ * setup a "FACTORY_LIST()" line at the end of factory class
+ * \code
+class ObjectFactory
+{
+  public:
+  static Object *New(const std::string &name
+  , std::vector<std::string> &factory_types
+  )
+  {
+    ...
+    return NULL;
+  }//New
+  static Object *New(const std::string &name)
+  {
+    std::vector<std::string> factory_types;
+    return New(name,factory_types);
+  }//New
+  //! get type list in factory
+  static void get_factory_types(std::vector<std::string> &factory_types)
+  {
+    ObjectFactory::New("list types",factory_types);
+  }//get_factory_types
+  FACTORY_LIST()
+};//ObjectFactory
+ * \endcode
+**/
 #define FACTORY_LIST() \
   static std::string List(void) \
   { \
@@ -305,29 +332,7 @@ class ComputerFactory
   {
     ComputerFactory::NewComputer("list types",factory_types);
   }//get_factory_types
-  static std::string List(void)
-  {
-    std::string list;
-    std::vector<std::string> factory_types;
-    get_factory_types(factory_types);
-    for(int i=0;i<factory_types.size();++i)
-    {
-      list+=factory_types[i];
-      if(i<factory_types.size()-1) list+=", ";
-    }
-    list+=".";
-    return list;
-  }//List
-/*
-  static std::string List(void)
-  {
-    std::string list;
-    list="laptop, desktop";
-    list+=", NumExo2_ExoGam, NumExo2_NEDA, NumExo2_error";
-    list+=".";
-    return list;
-  }//List
-*/
+  FACTORY_LIST()
 };//ComputerFactory
 
 //}factory
