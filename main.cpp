@@ -15,7 +15,7 @@
 #include <vector>         // std::vector
 #include <iostream>       // std::cout
 
-#define VERSION "v0.0.8f"
+#define VERSION "v0.0.8g"
 
 //Program option/documentation
 //{argp
@@ -101,23 +101,21 @@ static struct argp argp = { options, parse_option, args_doc, doc };
 
 //{factory
 
-/*
 //! list for factories
-#define FACTORY_LIST \
-  static std::string List(void)
-  {
-    std::string list;
-    std::vector<std::string> factory_types;
-    get_factory_types(factory_types);
-    for(int i=0;i<factory_types.size();++i)
-    {
-      list+=factory_types[i];
-      if(i<factory_types.size()-1) list+=", ";
-    }
-    list+=".";
-    return list;
+#define FACTORY_LIST() \
+  static std::string List(void) \
+  { \
+    std::string list; \
+    std::vector<std::string> factory_types; \
+    get_factory_types(factory_types); \
+    for(int i=0;i<factory_types.size();++i) \
+    { \
+      list+=factory_types[i]; \
+      if(i<factory_types.size()-1) list+=", "; \
+    } \
+    list+="."; \
+    return list; \
   }//List
-*/
 
 class Device
 {
@@ -186,21 +184,7 @@ class DeviceFactory
   {
     DeviceFactory::NewDevice("list types",factory_types);
   }//get_factory_types
-/**/
-  static std::string List(void)
-  {
-    std::string list;
-    std::vector<std::string> factory_types;
-    get_factory_types(factory_types);
-    for(int i=0;i<factory_types.size();++i)
-    {
-      list+=factory_types[i];
-      if(i<factory_types.size()-1) list+=", ";
-    }
-    list+=".";
-    return list;
-  }//List
-/**/
+  FACTORY_LIST()
 };//DeviceFactory
 
 
