@@ -101,48 +101,14 @@ static struct argp argp = { options, parse_option, args_doc, doc };
 
 //{factory
 
-//! virtual base factory
-/**
- * base class for a factory implementing (fake) object name list
- * \note instanciation based on name (i.e. string, as done only one time)
-**/
-template<typename TObject>
-class Factory
-{
-  public:
-  static TObject *NewObject(const std::string &name
-  , std::vector<std::string> &factory_types
-  )
-  {
-    //reset list
-    factory_types.clear();
-    //add item (to list and create object)
-    factory_types.push_back("fake")        ;if(name == factory_types.back())
-//      return new TObject;
-      return NULL;//should be TObject corresponding to name (as previous commented line)
-    //...
-    //listing known types in factory
-    if(name=="list types")
-      return NULL;
-    std::cerr<<"Object name is unknown, i.e. \""<<name<<"\"."<<std::endl;
-    std::cerr<<"  should be one of the following: "<<Factory::List()<<std::endl;
-    return NULL;
-  }//NewObject
-  static TObject *NewObject(const std::string &name)
-  {
-    std::vector<std::string> factory_types;
-    return NewObject(name, factory_types);
-  }//NewObject
-  //! get type list in factory
-  static void get_factory_types(std::vector<std::string> &factory_types)
-  {
-    Factory::NewObject("list types",factory_types);
-  }//get_factory_types
-  virtual std::string List(void)
+/*
+//! list for factories
+#define FACTORY_LIST \
+  static std::string List(void)
   {
     std::string list;
     std::vector<std::string> factory_types;
-    this->get_factory_types(factory_types);
+    get_factory_types(factory_types);
     for(int i=0;i<factory_types.size();++i)
     {
       list+=factory_types[i];
@@ -151,7 +117,7 @@ class Factory
     list+=".";
     return list;
   }//List
-};//Factory
+*/
 
 class Device
 {
@@ -189,7 +155,7 @@ class V6_NEDA: public Virtex6
 /**
  *  \note instanciation based on name (i.e. string, as done only one time)
 **/
-class DeviceFactory: public Factory<Device>
+class DeviceFactory
 {
   public:
   static Device *NewDevice(const std::string &name
@@ -216,10 +182,25 @@ class DeviceFactory: public Factory<Device>
     return NewDevice(name,factory_types);
   }//NewDevice
   //! get type list in factory
-  virtual void get_factory_types(std::vector<std::string> &factory_types)
+  static void get_factory_types(std::vector<std::string> &factory_types)
   {
-    DeviceFactory::NewObject("list types",factory_types);
-  }//get_factory_types  
+    DeviceFactory::NewDevice("list types",factory_types);
+  }//get_factory_types
+/**/
+  static std::string List(void)
+  {
+    std::string list;
+    std::vector<std::string> factory_types;
+    get_factory_types(factory_types);
+    for(int i=0;i<factory_types.size();++i)
+    {
+      list+=factory_types[i];
+      if(i<factory_types.size()-1) list+=", ";
+    }
+    list+=".";
+    return list;
+  }//List
+/**/
 };//DeviceFactory
 
 
