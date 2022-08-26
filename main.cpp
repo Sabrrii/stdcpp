@@ -138,11 +138,11 @@ class Factory
   {
     Factory::NewObject("list types",factory_types);
   }//get_factory_types
-  static std::string List(void)
+  virtual std::string List(void)
   {
     std::string list;
     std::vector<std::string> factory_types;
-    get_factory_types(factory_types);
+    this->get_factory_types(factory_types);
     for(int i=0;i<factory_types.size();++i)
     {
       list+=factory_types[i];
@@ -207,7 +207,7 @@ class DeviceFactory: public Factory<Device>
     if(name=="list types")
       return NULL;
     std::cerr<<"Object name is unknown, i.e. \""<<name<<"\"."<<std::endl;
-    std::cerr<<"  should be one of the following: "<<Factory::List()<<std::endl;
+    std::cerr<<"  should be one of the following: "<<DeviceFactory::List()<<std::endl;
     return NULL;
   }//NewDevice
   static Device *NewDevice(const std::string &name)
@@ -216,7 +216,7 @@ class DeviceFactory: public Factory<Device>
     return NewDevice(name,factory_types);
   }//NewDevice
   //! get type list in factory
-  static void get_factory_types(std::vector<std::string> &factory_types)
+  virtual void get_factory_types(std::vector<std::string> &factory_types)
   {
     DeviceFactory::NewObject("list types",factory_types);
   }//get_factory_types  
