@@ -1,6 +1,6 @@
 Usage: factory [OPTION...] 
 factory: factory program based on factory design pattern
-  factory.v0.0.7
+  factory.v0.0.8d
 examples:
   factory --help
   factory -v

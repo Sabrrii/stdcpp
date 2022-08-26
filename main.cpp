@@ -12,9 +12,10 @@
 #include <argp.h>
 
 #include <string>         // std::string
+#include <vector>         // std::vector
 #include <iostream>       // std::cout
 
-#define VERSION "v0.0.7"
+#define VERSION "v0.0.8d"
 
 //Program option/documentation
 //{argp
@@ -139,7 +140,9 @@ class V6_NEDA: public Virtex6
 class DeviceFactory
 {
   public:
-  static Device *NewDevice(const std::string &name)
+  static Device *NewDevice(const std::string &name
+  , std::vector<std::string> &factory_types
+  )
   {
     if(name == "Virtex6")
       return new Virtex6;
@@ -147,6 +150,12 @@ class DeviceFactory
       return new V6_NEDA;
     std::cerr<<"Device name is unknown, i.e. \""<<name<<"\"."<<std::endl;
     return NULL;
+  }//NewDevice
+  static Device *NewDevice(const std::string &name
+  )
+  {
+    std::vector<std::string> factory_types;
+    return NewDevice(name,factory_types);
   }//NewDevice
   static std::string List(void)
   {
@@ -244,22 +253,54 @@ class NumExo2_error: public NumExo2<int>
 class ComputerFactory
 {
   public:
-  static Computer *NewComputer(const std::string &name)
+  static Computer *NewComputer(const std::string &name
+  , std::vector<std::string> &factory_types
+  )
   {
-    if(name == "laptop")
+    //reset
+    factory_types.clear();
+    factory_types.push_back("laptop")        ;if(name == factory_types.back())
       return new Laptop;
-    if(name == "desktop")
+    factory_types.push_back("desktop")       ;if(name == factory_types.back())
       return new Desktop;
-    if(name == "NumExo2_ExoGam")
+    factory_types.push_back("NumExo2_ExoGam");if(name == factory_types.back())
       return new NumExo2_ExoGam;
-    if(name == "NumExo2_NEDA")
+    factory_types.push_back("NumExo2_NEDA")  ;if(name == factory_types.back())
       return new NumExo2_NEDA;
-    if(name == "NumExo2_error")
+    factory_types.push_back("NumExo2_error") ;if(name == factory_types.back())
       return new NumExo2_error;
+    //listing known types in factory
+    if(name=="list types")
+      return NULL;
     std::cerr<<"Module name is unknown, i.e. \""<<name<<"\"."<<std::endl;
     std::cerr<<"  should be one of the following: "<<ComputerFactory::List()<<std::endl;
     return NULL;
   }//NewComputer
+  static Computer *NewComputer(const std::string &name)
+  {
+    std::vector<std::string> factory_types;
+    return NewComputer(name, factory_types);
+  }//NewComputer
+/*
+  //! get type list in factory
+  static void get_factory_types(std::vector<std::string> &factory_types)
+  {
+    ComputerFactory::NewComputer("list types",factory_types);
+  }//get_factory_types
+  static std::string List(void)
+  {
+    std::string list;
+    std::vector<std::string> factory_types;
+    get_factory_types(factory_types);
+    for(int i=0;i<factory_types.count();++i)
+    {
+      if(i!=0) ;
+      list+=;
+    }
+    list+=".";
+    return list;
+  }
+*/
   static std::string List(void)
   {
     std::string list;
