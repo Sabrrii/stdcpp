@@ -15,7 +15,7 @@
 #include <vector>         // std::vector
 #include <iostream>       // std::cout
 
-#define VERSION "v0.0.8i"
+#define VERSION "v0.0.8"
 
 //Program option/documentation
 //{argp
@@ -115,9 +115,9 @@ class ObjectFactory
     ...
     return NULL;
   }//NewObject
-  FACTORY_NEWTYPE(Object) //create NewObject(const std::string &name)
+  FACTORY_NEWTYPE(Object)             //create NewObject(const std::string &name)
   FACTORY_TYPES(ObjectFactory,Object) //create get_factory_types(std::vector<std::string> &factory_types)
-  FACTORY_LIST() //List(void)
+  FACTORY_LIST()                      //create List(void)
 };//ObjectFactory
  * \endcode
 **/
@@ -126,7 +126,7 @@ class ObjectFactory
   { \
     std::vector<std::string> factory_types; \
     return OBJECT(name,factory_types); \
-  }//New#OBJECT
+  }//New##OBJECT
 
 //! get type list in factory
 #define FACTORY_TYPES(OBJECTFACTORY,OBJECT) \
