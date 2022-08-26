@@ -15,7 +15,7 @@
 #include <vector>         // std::vector
 #include <iostream>       // std::cout
 
-#define VERSION "v0.0.8d"
+#define VERSION "v0.0.8e"
 
 //Program option/documentation
 //{argp
@@ -281,7 +281,6 @@ class ComputerFactory
     std::vector<std::string> factory_types;
     return NewComputer(name, factory_types);
   }//NewComputer
-/*
   //! get type list in factory
   static void get_factory_types(std::vector<std::string> &factory_types)
   {
@@ -292,15 +291,15 @@ class ComputerFactory
     std::string list;
     std::vector<std::string> factory_types;
     get_factory_types(factory_types);
-    for(int i=0;i<factory_types.count();++i)
+    for(int i=0;i<factory_types.size();++i)
     {
-      if(i!=0) ;
-      list+=;
+      list+=factory_types[i];
+      if(i<factory_types.size()-1) list+=", ";
     }
     list+=".";
     return list;
-  }
-*/
+  }//List
+/*
   static std::string List(void)
   {
     std::string list;
@@ -308,7 +307,8 @@ class ComputerFactory
     list+=", NumExo2_ExoGam, NumExo2_NEDA, NumExo2_error";
     list+=".";
     return list;
-  }
+  }//List
+*/
 };//ComputerFactory
 
 //}factory
