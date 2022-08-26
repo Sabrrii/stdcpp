@@ -15,7 +15,7 @@
 #include <vector>         // std::vector
 #include <iostream>       // std::cout
 
-#define VERSION "v0.0.8g"
+#define VERSION "v0.0.8h"
 
 //Program option/documentation
 //{argp
@@ -101,34 +101,41 @@ static struct argp argp = { options, parse_option, args_doc, doc };
 
 //{factory
 
-//! list for factories
+//! New*, get_factory_types and list for factories
 /**
- * setup a "FACTORY_LIST()" line at the end of factory class
+ * setup "FACTORY_*" lines at the end of factory class
  * \code
 class ObjectFactory
 {
   public:
-  static Object *New(const std::string &name
+  static Object *NewObject(const std::string &name
   , std::vector<std::string> &factory_types
   )
   {
     ...
     return NULL;
-  }//New
-  static Object *New(const std::string &name)
-  {
-    std::vector<std::string> factory_types;
-    return New(name,factory_types);
-  }//New
-  //! get type list in factory
-  static void get_factory_types(std::vector<std::string> &factory_types)
-  {
-    ObjectFactory::New("list types",factory_types);
-  }//get_factory_types
-  FACTORY_LIST()
+  }//NewObject
+  FACTORY_NEWTYPE(Object) //create NewObject(const std::string &name)
+  FACTORY_TYPES(ObjectFactory,Object) //create get_factory_types(std::vector<std::string> &factory_types)
+  FACTORY_LIST() //List(void)
 };//ObjectFactory
  * \endcode
 **/
+#define FACTORY_NEWTYPE(OBJECT) \
+  static OBJECT *New##OBJECT(const std::string &name) \
+  { \
+    std::vector<std::string> factory_types; \
+    return OBJECT(name,factory_types); \
+  }//New#OBJECT
+
+//! get type list in factory
+#define FACTORY_TYPES(OBJECTFACTORY,OBJECT) \
+  static void get_factory_types(std::vector<std::string> &factory_types) \
+  { \
+    OBJECTFACTORY::New##OBJECT("list types",factory_types); \
+  }//get_factory_types
+
+//! list for factories
 #define FACTORY_LIST() \
   static std::string List(void) \
   { \
@@ -206,11 +213,7 @@ class DeviceFactory
     std::vector<std::string> factory_types;
     return NewDevice(name,factory_types);
   }//NewDevice
-  //! get type list in factory
-  static void get_factory_types(std::vector<std::string> &factory_types)
-  {
-    DeviceFactory::NewDevice("list types",factory_types);
-  }//get_factory_types
+  FACTORY_TYPES(DeviceFactory,Device)
   FACTORY_LIST()
 };//DeviceFactory
 
@@ -322,16 +325,20 @@ class ComputerFactory
     std::cerr<<"  should be one of the following: "<<ComputerFactory::List()<<std::endl;
     return NULL;
   }//NewComputer
+//  FACTORY_NEWTYPE(Computer)
   static Computer *NewComputer(const std::string &name)
   {
     std::vector<std::string> factory_types;
     return NewComputer(name, factory_types);
   }//NewComputer
+/*
   //! get type list in factory
   static void get_factory_types(std::vector<std::string> &factory_types)
   {
     ComputerFactory::NewComputer("list types",factory_types);
   }//get_factory_types
+*/
+  FACTORY_TYPES(ComputerFactory,Computer)
   FACTORY_LIST()
 };//ComputerFactory
 
