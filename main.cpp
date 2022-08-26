@@ -15,7 +15,7 @@
 #include <vector>         // std::vector
 #include <iostream>       // std::cout
 
-#define VERSION "v0.0.8e"
+#define VERSION "v0.0.8f"
 
 //Program option/documentation
 //{argp
@@ -189,35 +189,37 @@ class V6_NEDA: public Virtex6
 /**
  *  \note instanciation based on name (i.e. string, as done only one time)
 **/
-class DeviceFactory
+class DeviceFactory: public Factory<Device>
 {
   public:
   static Device *NewDevice(const std::string &name
   , std::vector<std::string> &factory_types
   )
   {
-    if(name == "Virtex6")
+    //reset list
+    factory_types.clear();
+    //add item (to list and create object)
+    factory_types.push_back("Virtex6")        ;if(name == factory_types.back())
       return new Virtex6;
-    if(name == "V6_NEDA")
+    factory_types.push_back("V6_NEDA")        ;if(name == factory_types.back())
       return new V6_NEDA;
-    std::cerr<<"Device name is unknown, i.e. \""<<name<<"\"."<<std::endl;
+    //listing known types in factory
+    if(name=="list types")
+      return NULL;
+    std::cerr<<"Object name is unknown, i.e. \""<<name<<"\"."<<std::endl;
+    std::cerr<<"  should be one of the following: "<<Factory::List()<<std::endl;
     return NULL;
   }//NewDevice
-  static Device *NewDevice(const std::string &name
-  )
+  static Device *NewDevice(const std::string &name)
   {
     std::vector<std::string> factory_types;
     return NewDevice(name,factory_types);
   }//NewDevice
-  static std::string List(void)
+  //! get type list in factory
+  static void get_factory_types(std::vector<std::string> &factory_types)
   {
-    std::string list;
-    list="Virtex6";
-    list+=", V6_NEDA";
-    list+=".";
-    return list;
-  }
-
+    DeviceFactory::NewObject("list types",factory_types);
+  }//get_factory_types  
 };//DeviceFactory
 
 
