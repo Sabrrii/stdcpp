@@ -12,6 +12,11 @@ before_script:
   - apt-get install -y libboost-dev
   ##docker container
 #  - printenv
+  ##CImg
+#  - apt-get install -y cimg-dev cimg-doc cimg-examples #libxrandr-dev
+  ##NetCDF
+  - apt-get install -y netcdf-bin libnetcdf-cxx-legacy-dev
+  - find / 2>/dev/null | grep -e libnetcdf.a -e libnetcdf.so -e libnetcdf_c++.a -e libnetcdf_c++.so
 
 build:
   stage: build
@@ -21,6 +26,8 @@ build:
 #  - printenv
   ##imported repository
   - cd $CI_PROJECT_DIR
+#temporary
+  - ./ci-temporary.sh
   - ls
   - grep url $CI_PROJECT_DIR/.git/config
   - git branch -a
