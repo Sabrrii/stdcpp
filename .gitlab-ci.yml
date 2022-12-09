@@ -17,6 +17,8 @@ before_script:
   ##NetCDF
   - apt-get install -y netcdf-bin libnetcdf-cxx-legacy-dev
   - find / 2>/dev/null | grep -e libnetcdf.a -e libnetcdf.so -e libnetcdf_c++.a -e libnetcdf_c++.so
+  ##image
+  - apt-get install -y imagemagick
 
 build:
   stage: build

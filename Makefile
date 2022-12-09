@@ -1,5 +1,5 @@
 BIN=hello_cimg
-version=v0.0.5
+version=v0.0.6
 
 VERSION=-DVERSION=\"$(version)\"
 CIMG_LIB=-I../CImg -Wall -W -lm -ansi -pedantic -O3 -fno-tree-pre -Dcimg_use_vt100 -lpthread
