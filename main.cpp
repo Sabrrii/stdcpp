@@ -60,7 +60,7 @@ int main(int argc, char **argv)
   if(show) image.display("Hello CImg");
   #endif
 
-  if(!file_o) image.save(file_o);
+  if(file_o) image.save(file_o);
 
   return 0;
 }//main
