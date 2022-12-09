@@ -26,8 +26,6 @@ build:
 #  - printenv
   ##imported repository
   - cd $CI_PROJECT_DIR
-#temporary
-  - ./ci-temporary.sh
   - ls
   - grep url $CI_PROJECT_DIR/.git/config
   - git branch -a
@@ -36,6 +34,8 @@ build:
   - mkdir -p /home/user
   - cd /home/user/
   - git clone $CI_PROJECT_DIR .
+#temporary
+  - ./ci-temporary.sh
   - git branch -a
   - ls *
 
