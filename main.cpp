@@ -37,12 +37,14 @@ int main(int argc, char **argv)
   if( cimg_option("--info",show_info,"show compilation options (or -I option)") ) {show_info=true;cimg_library::cimg::info();}//same --info or -I option
   bool show_version=cimg_option("-v",false,NULL);//-v hidden option
   if( cimg_option("--version",show_version,"show version (or -v option)") ) {show_version=true;std::cout<<VERSION<<std::endl;return 0;}//same --version or -v option
-  if(show_help) {/*print_help(std::cerr);*/return 0;}
+ 
+  
+  const int width = cimg_option("-n", 1000,"Width of image");
+  const int baseline = cimg_option("-b", 10,"Baseline of the graph");
+  
+   if(show_help) {/*print_help(std::cerr);*/return 0;}
   //}CLI option
-
-
-  //! print hello message on terminal
-  std::cout<<"Hello CImg (C++)"<<std::endl;
+  
 
   //! a few colors
   const unsigned char
@@ -53,11 +55,12 @@ int main(int argc, char **argv)
     black[] = {  0,  0,  0},
     white[] = {255,255,255};
 
-  CImg<unsigned char> image;
-  image.draw_text(0,32,"Hello CImg (C++)",white);
+  CImg<unsigned int> image(width);
+  image.fill(baseline);
+  
   image.print("image");
   #if cimg_display!=0
-  if(show) image.display("Hello CImg");
+  if(show) image.display_graph("Constant");
   #endif
 
   if(file_o) image.save(file_o);
