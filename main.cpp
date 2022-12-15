@@ -40,17 +40,18 @@ int main(int argc, char **argv)
  
   
   const int width = cimg_option("-n", 1000,"Width of image");
-  const float baseline = cimg_option("-b", 10,"Baseline of the graph");
-  const float amplitude = cimg_option("-a", 0,"Amplitude to add at the baseline");
-  const float nb_tB = cimg_option("-tb", 100,"Duration before adding the amplitude to the baseline");
-  const float nb_tA = cimg_option("-ta", 100,"Duration of the baseline increase");
+  const float baseline = cimg_option("-b", 10.0,"Baseline of the graph");
+  const float amplitude = cimg_option("-a", 0.0,"Amplitude to add at the baseline");
+  const int nb_tB = cimg_option("-tb", 100,"Time before adding the amplitude to the baseline");
+  const int nb_tA = cimg_option("-ta", 100,"Duration of the baseline increase");
+  const float downRate = cimg_option("-rate", 10.0,"Step for the slope");
   
    if(show_help) {/*print_help(std::cerr);*/return 0;}
   //}CLI option
   
-  const float txClimb = amplitude/nb_tA;//give the size of the increase step
-  const float txDown = amplitude/ (nb_tB+nb_tA); //give the size of the decrease step slope
-  
+  const float climbRate = amplitude/nb_tA;//give the size of the increase step
+ 
+  const float deltaX = amplitude/downRate; //give the size of the slope 
   //! a few colors
   const unsigned char
             // R   G   B
@@ -63,18 +64,18 @@ int main(int argc, char **argv)
   CImg<unsigned int> image(width);
   image.fill(baseline);
   
-  float hill= baseline+txClimb;//first step of the rise
+  float hill= baseline+climbRate;//first step of the rise
   
   if(amplitude !=0){
 	for( int i=0; i<nb_tA; i++){//duration of the amplitude 
 		image(nb_tB+i)=hill;
-		hill += txClimb;//incrementing the rise
+		hill += climbRate;//incrementing the rise
 	}//for (duration of amplitude)
 	
-	for(int y=0; y <(nb_tB+nb_tA); y++){//duration of the downhill
-		image(nb_tB+nb_tA+y)= hill;
-		hill -= txDown;//decrement with the downhill's step 
-	}//for(duration of the downhill)
+	for(int i=nb_tB+nb_tA; i <nb_tB+nb_tA+deltaX; i++){//duration of the descent
+		image(i)= hill;
+		hill -= downRate;//decrement with the descent step 
+	}//for(duration of the descent)
 	
   }//if (amplitude)
 
