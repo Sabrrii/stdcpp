@@ -40,14 +40,17 @@ int main(int argc, char **argv)
  
   
   const int width = cimg_option("-n", 1000,"Width of image");
-  const int baseline = cimg_option("-b", 10,"Baseline of the graph");
-  const int amplitude = cimg_option("-a", 0,"Amplitude to add at the baseline");
-  const int nb_tB = cimg_option("-tb", 100,"Duration before adding the amplitude to the baseline");
-  const int nb_tA = cimg_option("-ta", 100,"Duration of the increase of the baseline");
+  const float baseline = cimg_option("-b", 10,"Baseline of the graph");
+  const float amplitude = cimg_option("-a", 0,"Amplitude to add at the baseline");
+  const float nb_tB = cimg_option("-tb", 100,"Duration before adding the amplitude to the baseline");
+  const float nb_tA = cimg_option("-ta", 100,"Duration of the baseline increase");
   
    if(show_help) {/*print_help(std::cerr);*/return 0;}
   //}CLI option
-
+  
+  const float txClimb = amplitude/nb_tA;//give the size of the increase step
+  const float txDown = amplitude/ (nb_tB+nb_tA); //give the size of the decrease step slope
+  
   //! a few colors
   const unsigned char
             // R   G   B
@@ -59,15 +62,26 @@ int main(int argc, char **argv)
 
   CImg<unsigned int> image(width);
   image.fill(baseline);
+  
+  float hill= baseline+txClimb;//first step of the rise
+  
   if(amplitude !=0){
 	for( int i=0; i<nb_tA; i++){//duration of the amplitude 
-		image.fillY(nb_tB+i,0,0,baseline+amplitude);//fill the graph with the amplitude 
+		image(nb_tB+i)=hill;
+		hill += txClimb;//incrementing the rise
 	}//for (duration of amplitude)
+	
+	for(int y=0; y <(nb_tB+nb_tA); y++){//duration of the downhill
+		image(nb_tB+nb_tA+y)= hill;
+		hill -= txDown;//decrement with the downhill's step 
+	}//for(duration of the downhill)
+	
   }//if (amplitude)
+
   
   image.print("image");
   #if cimg_display!=0
-  if(show) image.display_graph("Amplitude");
+  if(show) image.display_graph("Climbing amplitude");
   #endif
 
   if(file_o) image.save(file_o);
