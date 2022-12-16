@@ -1,6 +1,8 @@
 /**
- * \brief minimal Hello CImg program (doxygen syntax)
- * \author Sebastien COUDERT
+ * \mainpage Welcome on the graph function file 
+ * \brief minimal program for print graph 
+ * \author Sebastien COUDERT and Sabri RABAHIA
+ * 
 **/
 
 #include <string>         // std::string
@@ -10,36 +12,64 @@ using namespace cimg_library;
 
 
 //! Create a baseline on the graph 
+/**
+ * \param img : [out] 
+ * \param baseline : [in]
+ * **/
 void setBaseline(CImg<unsigned int> &img,float baseline){
 	img.fill(baseline);
 }//setBaseline
 
-//!Create a graph with  a constant amplitude for a duration 
+//!Create a graph with  an amplitude 
+/**
+ * \param img : [out] 
+ * \param baseline : [in]
+ * \param amplitude : [in]
+ * \param nb_tB : [in] time before add the amplitude 
+ * \param nb_tA : [in] duration of the amplitude 
+ * 
+ *  The amplitude is add to the baseline during all the time of nb_tA.
+ * **/
 void funcRect(CImg<unsigned int> &image,float baseline,float amplitude,int nb_tB,int nb_tA){
+	//! 1. Draw the baseline
 	setBaseline(image,baseline);
 	if(amplitude !=0){
+		//! 2. Duration of the amplitude 
 		for( int i=0; i<nb_tA; i++){//duration of the amplitude 
 			image(nb_tB+i)=baseline+amplitude;
 		}//for (duration of amplitude)
 	}//ifamplitude
 }//funcRect
 
-//! Create a graph with increasing amplitude for a duration and decrease the line with a step set by user  
+//! Create a graph with increasing amplitude 
+/**
+ * \param img : [out] 
+ * \param baseline : [in]
+ * \param amplitude : [in]
+ * \param nb_tB : [in] time before add the amplitude 
+ * \param nb_tA : [in] duration of the amplitude 
+ * \param downRate : [in] step to decrease the slope
+ * 
+ *  The amplitude is increase progressivily during the increase time(nb_tA) and decrease with the downRate choose by the user 
+ * **/  
 void funcTri(CImg<unsigned int> &image,float baseline,float amplitude,int nb_tB,int nb_tA,float downRate){
 	const float climbRate = amplitude/nb_tA;//give the size of the increase step
 	const float deltaX = amplitude/downRate; //give the size of the slope
 	float hill= baseline+climbRate;//first step of the rise
-	
+	//! 1. Draw the baseline
 	setBaseline(image,baseline);
 	
 	if(amplitude !=0){
+		//! 2. Duration of the amplitude 
 		for( int i=0; i<nb_tA; i++){//duration of the amplitude 
 			image(nb_tB+i)=hill;
+			//! 3. Increase the rise of the amplitude
 			hill += climbRate;//incrementing the rise
 		}//for (duration of amplitude)
-	
+		//! 4. Start the descent of the amplitude 
 		for(int i=nb_tB+nb_tA; i <nb_tB+nb_tA+deltaX; i++){//duration of the descent
 			image(i)= hill;
+			//! 5. decrease the amplitude with the step 
 			hill -= downRate;//decrement with the descent step 
 		}//for(duration of the descent)
     }//if (amplitude)
@@ -100,6 +130,7 @@ int main(int argc, char **argv)
 
   CImg<unsigned int> image(width);
   
+  //!Choose the graph to draw
   switch (graph)  { //choose the right graph 
     case 1:
         setBaseline(image,baseline);

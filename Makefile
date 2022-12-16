@@ -20,7 +20,7 @@ binX: version
 	$(CXX) main.cpp $(VERSION) $(CIMG_LIB) $(CIMG_LIBX) -o $(BIN)X && ./$(BIN)X --help
 	./$(BIN)X --help > $(BIN)X_help.output && ./$(BIN)X --version > VERSION
 
-doc:
+doc: main.cpp
 	doxygen && ls -lah doc/html
 
 run:
