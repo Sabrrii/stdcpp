@@ -8,6 +8,45 @@
 #include "../CImg/CImg.h"  // CImg
 using namespace cimg_library;
 
+
+//! Create a baseline on the graph 
+void setBaseline(CImg<unsigned int> &img,float baseline){
+	img.fill(baseline);
+}//setBaseline
+
+//!Create a graph with  a constant amplitude for a duration 
+void funcRect(CImg<unsigned int> &image,float baseline,float amplitude,int nb_tB,int nb_tA){
+	setBaseline(image,baseline);
+	if(amplitude !=0){
+		for( int i=0; i<nb_tA; i++){//duration of the amplitude 
+			image(nb_tB+i)=baseline+amplitude;
+		}//for (duration of amplitude)
+	}//ifamplitude
+}//funcRect
+
+//! Create a graph with increasing amplitude for a duration and decrease the line with a step set by user  
+void funcTri(CImg<unsigned int> &image,float baseline,float amplitude,int nb_tB,int nb_tA,float downRate){
+	const float climbRate = amplitude/nb_tA;//give the size of the increase step
+	const float deltaX = amplitude/downRate; //give the size of the slope
+	float hill= baseline+climbRate;//first step of the rise
+	
+	setBaseline(image,baseline);
+	
+	if(amplitude !=0){
+		for( int i=0; i<nb_tA; i++){//duration of the amplitude 
+			image(nb_tB+i)=hill;
+			hill += climbRate;//incrementing the rise
+		}//for (duration of amplitude)
+	
+		for(int i=nb_tB+nb_tA; i <nb_tB+nb_tA+deltaX; i++){//duration of the descent
+			image(i)= hill;
+			hill -= downRate;//decrement with the descent step 
+		}//for(duration of the descent)
+    }//if (amplitude)
+}//funcTri 
+  
+  
+  
 //! hello starts here
 /**
  * \warning \c argc and \c argv not used yet, see argp branch (e.g. git checkout argp)
@@ -38,20 +77,18 @@ int main(int argc, char **argv)
   bool show_version=cimg_option("-v",false,NULL);//-v hidden option
   if( cimg_option("--version",show_version,"show version (or -v option)") ) {show_version=true;std::cout<<VERSION<<std::endl;return 0;}//same --version or -v option
  
-  
+  const int graph = cimg_option("-g",1," Choose you're graph : 1:constant, 2:rect, 3:tri");
   const int width = cimg_option("-n", 1000,"Width of image");
   const float baseline = cimg_option("-b", 10.0,"Baseline of the graph");
-  const float amplitude = cimg_option("-a", 0.0,"Amplitude to add at the baseline");
+  const float amplitude = cimg_option("-a", 100.0,"Amplitude to add at the baseline");
   const int nb_tB = cimg_option("-tb", 100,"Time before adding the amplitude to the baseline");
   const int nb_tA = cimg_option("-ta", 100,"Duration of the baseline increase");
-  const float downRate = cimg_option("-rate", 10.0,"Step for the slope");
+  const float downRate = cimg_option("-rate", 0.5,"Step for the slope");
+
   
    if(show_help) {/*print_help(std::cerr);*/return 0;}
   //}CLI option
-  
-  const float climbRate = amplitude/nb_tA;//give the size of the increase step
- 
-  const float deltaX = amplitude/downRate; //give the size of the slope 
+
   //! a few colors
   const unsigned char
             // R   G   B
@@ -62,28 +99,32 @@ int main(int argc, char **argv)
     white[] = {255,255,255};
 
   CImg<unsigned int> image(width);
-  image.fill(baseline);
   
-  float hill= baseline+climbRate;//first step of the rise
-  
-  if(amplitude !=0){
-	for( int i=0; i<nb_tA; i++){//duration of the amplitude 
-		image(nb_tB+i)=hill;
-		hill += climbRate;//incrementing the rise
-	}//for (duration of amplitude)
-	
-	for(int i=nb_tB+nb_tA; i <nb_tB+nb_tA+deltaX; i++){//duration of the descent
-		image(i)= hill;
-		hill -= downRate;//decrement with the descent step 
-	}//for(duration of the descent)
-	
-  }//if (amplitude)
+  switch (graph)  { //choose the right graph 
+    case 1:
+        setBaseline(image,baseline);
+        image.print("image");
+        #if cimg_display!=0
+		if(show) image.display_graph("Constant");
+		#endif
+        break;
 
-  
-  image.print("image");
-  #if cimg_display!=0
-  if(show) image.display_graph("Climbing amplitude");
-  #endif
+    case 2:
+        funcRect(image,baseline,amplitude,nb_tB,nb_tA);
+        image.print("image");
+		#if cimg_display!=0
+		if(show) image.display_graph("Signal Rect");
+		#endif
+        break;
+    case 3:
+		funcTri(image,baseline,amplitude,nb_tB,nb_tA,downRate);
+		image.print("image");
+		#if cimg_display!=0
+		if(show) image.display_graph("Signal Tri");
+		#endif
+        break;
+    
+	}//switch
 
   if(file_o) image.save(file_o);
 
