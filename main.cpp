@@ -14,7 +14,7 @@
 #include <string>         // std::string
 #include <iostream>       // std::cout
 
-#define VERSION "v0.0.7e"
+#define VERSION "v0.0.7z"
 
 //Program option/documentation
 //{argp
@@ -93,58 +93,6 @@ static struct argp argp = { options, parse_option, args_doc, doc };
 
 //{factory
 
-class Device
-{
- protected:
-  std::string name;
-  virtual void set_name(std::string device_name) {name=device_name; std::cout<<name<<"/"<<__func__<<"(\""<<name<<"\")"<<std::endl;}
- public:
-  //! constructor
-  Device() {name="none";}
-  virtual void Run() = 0;
-  virtual void Stop() = 0;
-  //! destructor (need at least empty one)
-  virtual ~Device() {}
-};//Device
-class Virtex6: public Device
-{
- public:
-  Virtex6() {set_name("Virtex6");}
-  virtual void Run()  {std::cout<<name<<" run"<<std::endl; mHibernating = false;}
-  virtual void Stop() {mHibernating = true;}
-  //! destructor (need at least empty one)
-  virtual ~Virtex6() {}
- private:
-  bool mHibernating;//Whether or not the machine is hibernating
-};//Virtex6
-class V6_NEDA: public Virtex6
-{
- public:
-  V6_NEDA() {set_name("V6_NEDA");}
-  //! destructor (need at least empty one)
-  virtual ~V6_NEDA() {}
-};//V6_NEDA
-
-//! device factory
-/**
- *  \note instanciation based on name (i.e. string, as done only one time)
-**/
-class DeviceFactory
-{
-  public:
-  static Device *NewDevice(const std::string &name)
-  {
-    if(name == "Virtex6")
-      return new Virtex6;
-    if(name == "V6_NEDA")
-      return new V6_NEDA;
-    std::cerr<<"Device name is unknown, i.e. \""<<name<<"\"."<<std::endl;
-    return NULL;
-  }//NewDevice
-};//DeviceFactory
-
-
-
 class Computer
 {
  protected:
@@ -179,44 +127,6 @@ class Desktop: public Computer
   bool mOn;//Whether or not the machine has been turned on
 };//Desktop
 
-//! numexo2 module
-class NumExo2: public Computer
-{
- protected:
-  //! Virtex6 device (from factory)
-  Device *v6;
- public:
-  //! constructor
-  //* \note do not instanciate especially v6 */
-  NumExo2() {set_name("NumExo2");}
-  virtual void create_v6(std::string device_name) {v6=DeviceFactory::NewDevice(device_name);}
-  virtual void Run()  {std::cout<<name<<" run"<<std::endl;mOn = true; if(v6!=NULL) v6->Run(); else std::cerr<<"Virtex6 is not instanciated (may be name error)"<<std::endl; }
-  void Stop() {mOn = false;}
-  virtual ~NumExo2() {}
- private:
-  bool mOn;//Whether or not the machine has been turned on
-};//NumExo2
-class NumExo2_ExoGam: public NumExo2
-{
- public:
-  NumExo2_ExoGam() {set_name("NumExo2_ExoGam");create_v6("Virtex6");}
-  virtual ~NumExo2_ExoGam() {}
-};//NumExo2_ExoGam
-class NumExo2_NEDA: public NumExo2
-{
- public:
-  NumExo2_NEDA() {set_name("NumExo2_NEDA");create_v6("V6_NEDA");}
-//  void Run()  {std::cout<<name<<" run"<<std::endl; }
-  virtual ~NumExo2_NEDA() {}
-};//NumExo2_NEDA
-class NumExo2_error: public NumExo2
-{
- public:
-  NumExo2_error() {set_name("NumExo2_error");create_v6("V6_error");}
-//  void Run()  {std::cout<<name<<" run"<<std::endl; }
-  virtual ~NumExo2_error() {}
-};//NumExo2_error
-
 //! computer factory
 /**
  *  \note instanciation based on name (i.e. string, as done only one time)
@@ -230,12 +140,6 @@ class ComputerFactory
       return new Laptop;
     if(name == "desktop")
       return new Desktop;
-    if(name == "NumExo2_ExoGam")
-      return new NumExo2_ExoGam;
-    if(name == "NumExo2_NEDA")
-      return new NumExo2_NEDA;
-    if(name == "NumExo2_error")
-      return new NumExo2_error;
     std::cerr<<"Module name is unknown, i.e. \""<<name<<"\"."<<std::endl;
     return NULL;
   }//NewComputer
@@ -270,18 +174,11 @@ int main(int argc, char **argv)
   }//print default option values
 
 
-  if(0)
+  if(false)
   {
-    Virtex6 v6;      v6.Run();
-    V6_NEDA v6n;     v6n.Run();
     Laptop laptop;   laptop.Run();
     Desktop desktop; desktop.Run();
   }//objects
-  if(0)
-  {
-    Device *v6=DeviceFactory::NewDevice("Virtex6"); if(v6!=NULL)  v6->Run();
-    Device *v6n=DeviceFactory::NewDevice("V6_NEDA");if(v6n!=NULL) v6n->Run();
-  }//factory objects
 
   std::cout<<"computer=\""<<arguments.module<<"\""<<std::endl;
   Computer* computer=ComputerFactory::NewComputer(arguments.module);
