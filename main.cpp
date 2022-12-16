@@ -11,14 +11,112 @@
 using namespace cimg_library;
 
 
-//! Create a baseline on the graph 
-/**
- * \param img : [out] 
- * \param baseline : [in]
- * **/
-void setBaseline(CImg<unsigned int> &img,float baseline){
-	img.fill(baseline);
-}//setBaseline
+
+class Signal{
+	protected:
+		CImg<unsigned int> image;
+		float baseline;
+		virtual void setImage(int width){ image.assign(width);}
+	public:
+		Signal(){}
+		virtual void fillBaseline(int baseline) {image.fill(baseline);}
+		virtual void display(){
+			image.print("image");
+			image.display_graph("Signal");
+		}
+		virtual void setSignal()=0;
+	
+};//class Signal
+
+class Constant : public Signal{
+	public: 
+		Constant(float width,float baseline){
+			setImage(width);
+			this->baseline=baseline;
+		}
+		void setSignal(){
+			fillBaseline(baseline);
+		}
+};//class Constant
+
+class Rect : public Signal{
+	public:
+		Rect(float width,float baseline,float amplitude,int nb_tB,int nb_tA){
+			setImage(width);
+			this->baseline=baseline;
+			this->amplitude=amplitude;
+			this->nb_tB=nb_tB;
+			this->nb_tA=nb_tA;
+		}
+		void setSignal(){
+			fillBaseline(baseline);
+			for( int i=0; i<nb_tA; i++){//duration of the amplitude 
+				image(nb_tB+i)=baseline+amplitude;
+			}//for (duration of amplitude)
+		}
+	private:
+		float amplitude;
+		int nb_tB;
+		int nb_tA;
+};//class Rect
+
+
+class Tri : public Signal{
+	public :
+		Tri(float width,float baseline,float amplitude,int nb_tB,int nb_tA,float downRate){
+			setImage(width);
+			this->baseline=baseline;
+			this->amplitude=amplitude;
+			this->nb_tB=nb_tB;
+			this->nb_tA=nb_tA;
+			this->downRate=downRate;
+		}
+		void setSignal(){
+			const float climbRate = amplitude/nb_tA;//give the size of the increase step
+			const float deltaX = amplitude/downRate; //give the size of the slope
+			float hill= baseline+climbRate;//first step of the rise
+			fillBaseline(baseline);
+			for( int i=0; i<nb_tA; i++){//duration of the amplitude 
+					image(nb_tB+i)=hill;
+					//! 3. Increase the rise of the amplitude
+					hill += climbRate;//incrementing the rise
+				}//for (duration of amplitude)
+				//! 4. Start the descent of the amplitude
+				const int downHillStep = nb_tB+nb_tA+deltaX; 
+				for(int i=nb_tB+nb_tA; i <downHillStep; i++){//duration of the descent
+					image(i)= hill;
+					//! 5. decrease the amplitude with the step 
+					hill -= downRate;//decrement with the descent step 
+				}//for(duration of the descent)
+		}
+	private:
+		float amplitude;
+		int nb_tB;
+		int nb_tA;	
+		float downRate;
+
+};//class Tri
+
+class SignalFactory{
+	public:
+		static Signal *NewSignal(char type,float width,float baseline,float amplitude, int nb_tB,int nb_tA,float downRate){
+			switch(type){
+				case 1 :
+				return new Constant(width,baseline);
+				case 2 :
+				return new Rect(width,baseline,amplitude,nb_tB,nb_tA);
+				case 3:
+				return new Tri(width,baseline,amplitude,nb_tB,nb_tA,downRate);
+			}
+		}
+};//Class SignalFactory
+
+
+
+
+void setBaseline(CImg<unsigned int> image,float baseline){
+	image.fill(baseline);
+}
 
 //!Create a graph with  an amplitude 
 /**
@@ -66,15 +164,16 @@ void funcTri(CImg<unsigned int> &image,float baseline,float amplitude,int nb_tB,
 			//! 3. Increase the rise of the amplitude
 			hill += climbRate;//incrementing the rise
 		}//for (duration of amplitude)
+		const int downHillStep = nb_tB+nb_tA+deltaX;
 		//! 4. Start the descent of the amplitude 
-		for(int i=nb_tB+nb_tA; i <nb_tB+nb_tA+deltaX; i++){//duration of the descent
+		for(int i=nb_tB+nb_tA; i < downHillStep; i++){//duration of the descent
 			image(i)= hill;
 			//! 5. decrease the amplitude with the step 
 			hill -= downRate;//decrement with the descent step 
 		}//for(duration of the descent)
     }//if (amplitude)
 }//funcTri 
-  
+
   
   
 //! hello starts here
@@ -114,50 +213,20 @@ int main(int argc, char **argv)
   const int nb_tB = cimg_option("-tb", 100,"Time before adding the amplitude to the baseline");
   const int nb_tA = cimg_option("-ta", 100,"Duration of the baseline increase");
   const float downRate = cimg_option("-rate", 0.5,"Step for the slope");
+  const char type = cimg_option("-type",1,"type of the signal 1:constant, 2:rect, 3:tri");
 
   
    if(show_help) {/*print_help(std::cerr);*/return 0;}
   //}CLI option
 
-  //! a few colors
-  const unsigned char
-            // R   G   B
-    red[]   = {255,  0,  0},
-    green[] = {  0,255,  0},
-    blue [] = {  0,  0,255},
-    black[] = {  0,  0,  0},
-    white[] = {255,255,255};
-
-  CImg<unsigned int> image(width);
+  Signal* signal = SignalFactory::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate);
+  signal->setSignal();
   
-  //!Choose the graph to draw
-  switch (graph)  { //choose the right graph 
-    case 1:
-        setBaseline(image,baseline);
-        image.print("image");
-        #if cimg_display!=0
-		if(show) image.display_graph("Constant");
-		#endif
-        break;
-
-    case 2:
-        funcRect(image,baseline,amplitude,nb_tB,nb_tA);
-        image.print("image");
-		#if cimg_display!=0
-		if(show) image.display_graph("Signal Rect");
-		#endif
-        break;
-    case 3:
-		funcTri(image,baseline,amplitude,nb_tB,nb_tA,downRate);
-		image.print("image");
-		#if cimg_display!=0
-		if(show) image.display_graph("Signal Tri");
-		#endif
-        break;
-    
-	}//switch
-
-  if(file_o) image.save(file_o);
+  #if cimg_display!=0
+  if(show) signal->display();
+  #endif
+  
+  //if(file_o) image.save(file_o);
 
   return 0;
 }//main
