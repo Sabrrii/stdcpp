@@ -97,9 +97,34 @@ class Tri : public Signal{
 
 };//class Tri
 
+
+class Pac : public Signal{
+	public :
+		Pac(float width,float baseline,float amplitude,int nb_tB,float rate1,float rate2){
+			setImage(width);
+			this->baseline=baseline;
+			this->amplitude=amplitude;
+			this->nb_tB=nb_tB;
+			this->rate1=rate1;
+			this->rate2=rate2;
+		}
+		void setSignal(){
+			const float coef= amplitude/(rate1-rate2);
+			for( int i=nb_tB; i<image.width(); i++){
+					this->image(i)=coef*(exp(-i/rate1)-exp(-i/rate2)+baseline);
+				}
+		}
+	private:
+		float amplitude;
+		int nb_tB;	
+		float rate1;
+		float rate2;
+
+};//class Pac
+
 class SignalFactory{
 	public:
-		static Signal *NewSignal(char type,float width,float baseline,float amplitude, int nb_tB,int nb_tA,float downRate){
+		static Signal *NewSignal(char type,float width,float baseline,float amplitude, int nb_tB,int nb_tA,float downRate,float rate1,float rate2){
 			switch(type){
 				case 1 :
 				return new Constant(width,baseline);
@@ -107,6 +132,8 @@ class SignalFactory{
 				return new Rect(width,baseline,amplitude,nb_tB,nb_tA);
 				case 3:
 				return new Tri(width,baseline,amplitude,nb_tB,nb_tA,downRate);
+				case 4:
+				return new Pac(width,baseline,amplitude,nb_tB,rate1,rate2);
 			}
 		}
 };//Class SignalFactory
@@ -206,20 +233,21 @@ int main(int argc, char **argv)
   bool show_version=cimg_option("-v",false,NULL);//-v hidden option
   if( cimg_option("--version",show_version,"show version (or -v option)") ) {show_version=true;std::cout<<VERSION<<std::endl;return 0;}//same --version or -v option
  
-  const int graph = cimg_option("-g",1," Choose you're graph : 1:constant, 2:rect, 3:tri");
   const int width = cimg_option("-n", 1000,"Width of image");
   const float baseline = cimg_option("-b", 10.0,"Baseline of the graph");
   const float amplitude = cimg_option("-a", 100.0,"Amplitude to add at the baseline");
   const int nb_tB = cimg_option("-tb", 100,"Time before adding the amplitude to the baseline");
   const int nb_tA = cimg_option("-ta", 100,"Duration of the baseline increase");
   const float downRate = cimg_option("-rate", 0.5,"Step for the slope");
-  const char type = cimg_option("-type",1,"type of the signal 1:constant, 2:rect, 3:tri");
+  const char type = cimg_option("-type",4,"type of the signal 1:constant, 2:rect, 3:tri");
+  const float rate1 = cimg_option("-r1",2,"rate1");
+  const float rate2 = cimg_option("-r2",2,"rate2");
 
   
    if(show_help) {/*print_help(std::cerr);*/return 0;}
   //}CLI option
 
-  Signal* signal = SignalFactory::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate);
+  Signal* signal = SignalFactory::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
   signal->setSignal();
   
   #if cimg_display!=0
