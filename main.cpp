@@ -17,11 +17,12 @@ using namespace cimg_library;
  * \param width : [in] 
  * \param baseline : [in]
  * **/
+/*template<typename T>*/
 class Signal{
 	protected:
-		CImg<unsigned int > image;
-		float baseline;
-		virtual void setImage(float width){ image.assign(width);}
+		CImg</*T*/unsigned int> image;
+		/*T*/float baseline;
+		virtual void setImage(int width){ image.assign(width);}
 	public:
 		Signal(){}
 		virtual void fillBaseline(float baseline) {image.fill(baseline);}
@@ -33,16 +34,19 @@ class Signal{
 	
 };//class Signal
 
-
-//!Create a constant graph
+//!Create a Constant signal
 /**
- * \param width : [in] 
- * \param baseline : [in]
- * 
- * Basic graph with a flat baseline
+ * Create a graph with a constant signal
  * **/
 class Constant : public Signal{
-	public: 
+	public:
+		//!Create a constant graph
+	/**
+	 * \param width : [in] 
+	 * \param baseline : [in]
+	 * 
+	 * Basic graph with a flat baseline
+	 * **/
 		Constant(float width,float baseline){
 			setImage(width);
 			this->baseline=baseline;
@@ -51,22 +55,23 @@ class Constant : public Signal{
 			fillBaseline(baseline);//call the function from Signal class
 		}
 };//class Constant
-
-//!Create a graph with  an amplitude 
+//!Create Rectangle signal
 /**
- * \param img : [out] 
- * \param baseline : [in]
- * \param amplitude : [in]
- * \param nb_tB : [in] time before add the amplitude 
- * \param nb_tA : [in] duration of the amplitude 
- * 
- *  The amplitude is add to the baseline during all the time of nb_tA.
+ *  Create a graph with a rectangle signal 
  * **/
-class Rect : public Signal{
+class Rect : public Constant{
 	public:
-		Rect(float width,float baseline,float amplitude,int nb_tB,int nb_tA){
-			setImage(width);
-			this->baseline=baseline;
+	//!Create a graph with  an amplitude 
+	/**
+	 * \param img : [out] 
+	 * \param baseline : [in]
+	 * \param amplitude : [in]
+	 * \param nb_tB : [in] time before add the amplitude 
+	 * \param nb_tA : [in] duration of the amplitude 
+	 * 
+	 *  The amplitude is add to the baseline during all the time of nb_tA.
+	 * **/
+		Rect(float width,float baseline,float amplitude,int nb_tB,int nb_tA): Constant(width,baseline){
 			this->amplitude=amplitude;
 			this->nb_tB=nb_tB;
 			this->nb_tA=nb_tA;
@@ -77,31 +82,30 @@ class Rect : public Signal{
 				image(nb_tB+i)=baseline+amplitude;
 			}//for (duration of amplitude)
 		}
-	private:
+	protected:
 		float amplitude;
 		int nb_tB;
 		int nb_tA;
 };//class Rect
 
-//! Create a graph with increasing amplitude 
+//!Create triangle signal
 /**
- * \param img : [out] 
- * \param baseline : [in]
- * \param amplitude : [in]
- * \param nb_tB : [in] time before add the amplitude 
- * \param nb_tA : [in] duration of the amplitude 
- * \param downRate : [in] step to decrease the slope
- * 
- *  The amplitude is increase progressivily during the increase time(nb_tA) and decrease with the downRate choose by the user 
+ *  Create a graph with a triangle signal 
  * **/
-class Tri : public Signal{
+class Tri : public Rect{
 	public :
-		Tri(float width,float baseline,float amplitude,int nb_tB,int nb_tA,float downRate){
-			setImage(width);
-			this->baseline=baseline;
-			this->amplitude=amplitude;
-			this->nb_tB=nb_tB;
-			this->nb_tA=nb_tA;
+		//! Create a graph with increasing amplitude 
+		/**
+		 * \param img : [out] 
+		 * \param baseline : [in]
+		 * \param amplitude : [in]
+		 * \param nb_tB : [in] time before add the amplitude 
+		 * \param nb_tA : [in] duration of the amplitude 
+		 * \param downRate : [in] step to decrease the slope
+		 * 
+		 *  The amplitude is increase progressivily during the increase time(nb_tA) and decrease with the downRate choose by the user 
+		 * **/
+		Tri(float width,float baseline,float amplitude,int nb_tB,int nb_tA,float downRate) : Rect(width,baseline,amplitude,nb_tB,nb_tA){
 			this->downRate=downRate;
 		}
 		void setSignal(){
@@ -109,54 +113,61 @@ class Tri : public Signal{
 			const float deltaX = amplitude/downRate; //give the size of the slope
 			float hill= baseline+climbRate;//first step of the rise
 			
+//!\todo cimg_for_inX(image, i, 0,nb_tB-1) image(i)=baseline;
+			//! 1. Crteate the rbaseline on graph
 			fillBaseline(baseline);//call the function from Signal class
 			
-			for( int i=0; i<nb_tA; i++){//duration of the amplitude 
-					image(nb_tB+i)=hill;
-					//! 3. Increase the rise of the amplitude
-					hill += climbRate;//incrementing the rise
-				}//for (duration of amplitude)
-				//! 4. Start the descent of the amplitude
-				const int downHillStep = nb_tB+nb_tA+deltaX; 
-				for(int i=nb_tB+nb_tA; i <downHillStep; i++){//duration of the descent
-					image(i)= hill;
-					//! 5. decrease the amplitude with the step 
-					hill -= downRate;//decrement with the descent step 
-				}//for(duration of the descent)
+//!\todo cimg_for_inX(...
+			for( int i=nb_tB; i<nb_tB+nb_tA; i++){//duration of the amplitude 
+				image(i)=hill;
+				//! 2. Increase the rise of the amplitude
+				hill += climbRate;//incrementing the rise
+			}//for (duration of amplitude)
+
+//!\todo cimg_for_inX(...
+			//! 3. Start the descent of the amplitude
+			const int downHillStep = nb_tB+nb_tA+deltaX; 
+			for(int i=nb_tB+nb_tA; i <downHillStep; i++){//duration of the descent
+				image(i)= hill;
+				//! 4. decrease the amplitude with the step 
+				hill -= downRate;//decrement with the descent step 
+			}//for(duration of the descent)
+//!\todo cimg_for_inX(image, i, nb_tB...,image.width()-1) image(i)=baseline;
+
 		}
-	private:
-		float amplitude;
-		int nb_tB;
-		int nb_tA;	
+	private:	
 		float downRate;
 
 };//class Tri
 
 //! Create a graph with a Signal 
 /**
- * \param img : [out] 
- * \param width : [in]
- * \param baseline : [in]
- * \param amplitude : [in]
- * \param nb_tB : [in] time before add the amplitude 
- * \param rate1 : [in]
- * \param rate2 : [in]
- * 
  *   Create a pac curve signal 
  * **/
-class Pac : public Signal{
+class Pac : public Constant{
 	public :
-		Pac(float width,float baseline,float amplitude,int nb_tB,float rate1,float rate2){
-			setImage(width);
-			this->baseline=baseline;
+		//! Create a graph with a Signal 
+		/**
+		 * \param img : [out] 
+		 * \param width : [in]
+		 * \param baseline : [in]
+		 * \param amplitude : [in]
+		 * \param nb_tB : [in] time before add the amplitude 
+		 * \param rate1 : [in]
+		 * \param rate2 : [in]
+		 * 
+		 *   Create a pac curve signal 
+		 * **/
+		Pac(int width,float baseline,float amplitude,int nb_tB,float rate1,float rate2) : Constant(width,baseline){
 			this->amplitude=amplitude;
 			this->nb_tB=nb_tB;
 			this->rate1=rate1;
 			this->rate2=rate2;
 		}
+		//! \todo COMMENT
 		void setSignal(){
 			fillBaseline(baseline);//call the function from Signal class
-			int t = 0;
+			double t = 0;
 			for( int i=nb_tB; i<image.width(); i++){
 				this->image(i)=amplitude*(exp(-t/rate1)-exp(-t/rate2))+baseline;
 				t++;
@@ -167,8 +178,8 @@ class Pac : public Signal{
 	private:
 		float amplitude;
 		int nb_tB;	
-		float rate1;
-		float rate2;
+		double rate1;
+		double rate2;
 
 };//class Pac
 
@@ -198,6 +209,8 @@ class SignalFactory{
 				return new Tri(width,baseline,amplitude,nb_tB,nb_tA,downRate);
 				case 4:
 				return new Pac(width,baseline,amplitude,nb_tB,rate1,rate2);
+				default:
+				return NULL;
 			}
 		}
 };//Class SignalFactory
@@ -232,28 +245,33 @@ int main(int argc, char **argv)
   bool show_version=cimg_option("-v",false,NULL);//-v hidden option
   if( cimg_option("--version",show_version,"show version (or -v option)") ) {show_version=true;std::cout<<VERSION<<std::endl;return 0;}//same --version or -v option
  
+  const char type = cimg_option("-type",4,"type of the signal 1:constant, 2:rect, 3:tri, 4:pac");
   const int width = cimg_option("-n", 1000,"Width of image");
   const float baseline = cimg_option("-b", 10.0,"Baseline of the graph");
   const float amplitude = cimg_option("-a", 100.0,"Amplitude to add at the baseline");
   const int nb_tB = cimg_option("-tb", 100,"Time before adding the amplitude to the baseline");
   const int nb_tA = cimg_option("-ta", 100,"Duration of the baseline increase");
-  const float downRate = cimg_option("-rate", 0.5,"Step for the slope");
-  const char type = cimg_option("-type",4,"type of the signal 1:constant, 2:rect, 3:tri, 4:pac");
-  const float rate1 = cimg_option("-r1",170,"rate1");
-  const float rate2 = cimg_option("-r2",100,"rate2");
+  const float downRate = cimg_option("-rate", 0.5,"Step for the slope in case of signal 3:tri");
+  const float rate1 = cimg_option("-r1",170,"rate1 in case of signal 4: pac");
+  const float rate2 = cimg_option("-r2",100,"rate2 in case of signal 4: pac");
 
   
-   if(show_help) {/*print_help(std::cerr);*/return 0;}
+   if(show_help) {/*print_helps(std::cerr);*/return 0;}
   //}CLI option
 
-  Signal* signal = SignalFactory::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
+  Signal/*<float>*/* signal = SignalFactory::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
+  /*
+  Signal<int> signalU = SignalFactory::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
+  */
+  
+  if(signal ==NULL){std::cerr<<"Error type of signal doesn't exist"<<std::endl; return 1;}
   signal->setSignal();
   
   #if cimg_display!=0
   if(show) signal->display();
   #endif
   
-  //if(file_o) image.save(file_o);
+  //if(file_o) signal->image.save(file_o);
 
   return 0;
 }//main
