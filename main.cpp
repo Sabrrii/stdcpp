@@ -1,6 +1,6 @@
 /**
  * \mainpage Welcome on the graph function file 
- * \brief minimal program for print graph 
+ * \brief class programm with factory to print graph
  * \author Sebastien COUDERT and Sabri RABAHIA
  * 
 **/
@@ -11,15 +11,20 @@
 using namespace cimg_library;
 
 
-
+//! Virtual class for all graph
+/**
+ * \param image : [out]
+ * \param width : [in] 
+ * \param baseline : [in]
+ * **/
 class Signal{
 	protected:
-		CImg<unsigned int> image;
+		CImg<unsigned int > image;
 		float baseline;
-		virtual void setImage(int width){ image.assign(width);}
+		virtual void setImage(float width){ image.assign(width);}
 	public:
 		Signal(){}
-		virtual void fillBaseline(int baseline) {image.fill(baseline);}
+		virtual void fillBaseline(float baseline) {image.fill(baseline);}
 		virtual void display(){
 			image.print("image");
 			image.display_graph("Signal");
@@ -28,6 +33,14 @@ class Signal{
 	
 };//class Signal
 
+
+//!Create a constant graph
+/**
+ * \param width : [in] 
+ * \param baseline : [in]
+ * 
+ * Basic graph with a flat baseline
+ * **/
 class Constant : public Signal{
 	public: 
 		Constant(float width,float baseline){
@@ -35,10 +48,20 @@ class Constant : public Signal{
 			this->baseline=baseline;
 		}
 		void setSignal(){
-			fillBaseline(baseline);
+			fillBaseline(baseline);//call the function from Signal class
 		}
 };//class Constant
 
+//!Create a graph with  an amplitude 
+/**
+ * \param img : [out] 
+ * \param baseline : [in]
+ * \param amplitude : [in]
+ * \param nb_tB : [in] time before add the amplitude 
+ * \param nb_tA : [in] duration of the amplitude 
+ * 
+ *  The amplitude is add to the baseline during all the time of nb_tA.
+ * **/
 class Rect : public Signal{
 	public:
 		Rect(float width,float baseline,float amplitude,int nb_tB,int nb_tA){
@@ -49,7 +72,7 @@ class Rect : public Signal{
 			this->nb_tA=nb_tA;
 		}
 		void setSignal(){
-			fillBaseline(baseline);
+			fillBaseline(baseline);//call the function from Signal class
 			for( int i=0; i<nb_tA; i++){//duration of the amplitude 
 				image(nb_tB+i)=baseline+amplitude;
 			}//for (duration of amplitude)
@@ -60,7 +83,17 @@ class Rect : public Signal{
 		int nb_tA;
 };//class Rect
 
-
+//! Create a graph with increasing amplitude 
+/**
+ * \param img : [out] 
+ * \param baseline : [in]
+ * \param amplitude : [in]
+ * \param nb_tB : [in] time before add the amplitude 
+ * \param nb_tA : [in] duration of the amplitude 
+ * \param downRate : [in] step to decrease the slope
+ * 
+ *  The amplitude is increase progressivily during the increase time(nb_tA) and decrease with the downRate choose by the user 
+ * **/
 class Tri : public Signal{
 	public :
 		Tri(float width,float baseline,float amplitude,int nb_tB,int nb_tA,float downRate){
@@ -75,7 +108,9 @@ class Tri : public Signal{
 			const float climbRate = amplitude/nb_tA;//give the size of the increase step
 			const float deltaX = amplitude/downRate; //give the size of the slope
 			float hill= baseline+climbRate;//first step of the rise
-			fillBaseline(baseline);
+			
+			fillBaseline(baseline);//call the function from Signal class
+			
 			for( int i=0; i<nb_tA; i++){//duration of the amplitude 
 					image(nb_tB+i)=hill;
 					//! 3. Increase the rise of the amplitude
@@ -97,7 +132,18 @@ class Tri : public Signal{
 
 };//class Tri
 
-
+//! Create a graph with a Signal 
+/**
+ * \param img : [out] 
+ * \param width : [in]
+ * \param baseline : [in]
+ * \param amplitude : [in]
+ * \param nb_tB : [in] time before add the amplitude 
+ * \param rate1 : [in]
+ * \param rate2 : [in]
+ * 
+ *   Create a pac curve signal 
+ * **/
 class Pac : public Signal{
 	public :
 		Pac(float width,float baseline,float amplitude,int nb_tB,float rate1,float rate2){
@@ -109,11 +155,15 @@ class Pac : public Signal{
 			this->rate2=rate2;
 		}
 		void setSignal(){
-			const float coef= amplitude/(rate1-rate2);
+			fillBaseline(baseline);//call the function from Signal class
+			int t = 0;
 			for( int i=nb_tB; i<image.width(); i++){
-					this->image(i)=coef*(exp(-i/rate1)-exp(-i/rate2)+baseline);
-				}
+				this->image(i)=amplitude*(exp(-t/rate1)-exp(-t/rate2))+baseline;
+				t++;
+			}
+			//As the gap beetwen rate is bigger, the curve will be pack
 		}
+		
 	private:
 		float amplitude;
 		int nb_tB;	
@@ -122,10 +172,24 @@ class Pac : public Signal{
 
 };//class Pac
 
+//!Signal Factory 
+/**
+ * \param img : [out] 
+ * \param width : [in]
+ * \param baseline : [in]
+ * \param amplitude : [in]
+ * \param nb_tB : [in] time before add the amplitude 
+ * \param nb_tA : [in] duration of the amplitude 
+ * \param downRate : [in] step to decrease the slope
+ * \param rate1 : [in]
+ * \param rate2 : [in]
+ * 
+ *  To choose witch signal to create 
+ * **/
 class SignalFactory{
 	public:
 		static Signal *NewSignal(char type,float width,float baseline,float amplitude, int nb_tB,int nb_tA,float downRate,float rate1,float rate2){
-			switch(type){
+			switch(type){//Selection of the curve
 				case 1 :
 				return new Constant(width,baseline);
 				case 2 :
@@ -138,71 +202,6 @@ class SignalFactory{
 		}
 };//Class SignalFactory
 
-
-
-
-void setBaseline(CImg<unsigned int> image,float baseline){
-	image.fill(baseline);
-}
-
-//!Create a graph with  an amplitude 
-/**
- * \param img : [out] 
- * \param baseline : [in]
- * \param amplitude : [in]
- * \param nb_tB : [in] time before add the amplitude 
- * \param nb_tA : [in] duration of the amplitude 
- * 
- *  The amplitude is add to the baseline during all the time of nb_tA.
- * **/
-void funcRect(CImg<unsigned int> &image,float baseline,float amplitude,int nb_tB,int nb_tA){
-	//! 1. Draw the baseline
-	setBaseline(image,baseline);
-	if(amplitude !=0){
-		//! 2. Duration of the amplitude 
-		for( int i=0; i<nb_tA; i++){//duration of the amplitude 
-			image(nb_tB+i)=baseline+amplitude;
-		}//for (duration of amplitude)
-	}//ifamplitude
-}//funcRect
-
-//! Create a graph with increasing amplitude 
-/**
- * \param img : [out] 
- * \param baseline : [in]
- * \param amplitude : [in]
- * \param nb_tB : [in] time before add the amplitude 
- * \param nb_tA : [in] duration of the amplitude 
- * \param downRate : [in] step to decrease the slope
- * 
- *  The amplitude is increase progressivily during the increase time(nb_tA) and decrease with the downRate choose by the user 
- * **/  
-void funcTri(CImg<unsigned int> &image,float baseline,float amplitude,int nb_tB,int nb_tA,float downRate){
-	const float climbRate = amplitude/nb_tA;//give the size of the increase step
-	const float deltaX = amplitude/downRate; //give the size of the slope
-	float hill= baseline+climbRate;//first step of the rise
-	//! 1. Draw the baseline
-	setBaseline(image,baseline);
-	
-	if(amplitude !=0){
-		//! 2. Duration of the amplitude 
-		for( int i=0; i<nb_tA; i++){//duration of the amplitude 
-			image(nb_tB+i)=hill;
-			//! 3. Increase the rise of the amplitude
-			hill += climbRate;//incrementing the rise
-		}//for (duration of amplitude)
-		const int downHillStep = nb_tB+nb_tA+deltaX;
-		//! 4. Start the descent of the amplitude 
-		for(int i=nb_tB+nb_tA; i < downHillStep; i++){//duration of the descent
-			image(i)= hill;
-			//! 5. decrease the amplitude with the step 
-			hill -= downRate;//decrement with the descent step 
-		}//for(duration of the descent)
-    }//if (amplitude)
-}//funcTri 
-
-  
-  
 //! hello starts here
 /**
  * \warning \c argc and \c argv not used yet, see argp branch (e.g. git checkout argp)
@@ -239,9 +238,9 @@ int main(int argc, char **argv)
   const int nb_tB = cimg_option("-tb", 100,"Time before adding the amplitude to the baseline");
   const int nb_tA = cimg_option("-ta", 100,"Duration of the baseline increase");
   const float downRate = cimg_option("-rate", 0.5,"Step for the slope");
-  const char type = cimg_option("-type",4,"type of the signal 1:constant, 2:rect, 3:tri");
-  const float rate1 = cimg_option("-r1",2,"rate1");
-  const float rate2 = cimg_option("-r2",2,"rate2");
+  const char type = cimg_option("-type",4,"type of the signal 1:constant, 2:rect, 3:tri, 4:pac");
+  const float rate1 = cimg_option("-r1",170,"rate1");
+  const float rate2 = cimg_option("-r2",100,"rate2");
 
   
    if(show_help) {/*print_help(std::cerr);*/return 0;}
