@@ -112,27 +112,37 @@ class Tri : public Rect{
 			const float climbRate = amplitude/nb_tA;//give the size of the increase step
 			const float deltaX = amplitude/downRate; //give the size of the slope
 			float hill= baseline+climbRate;//first step of the rise
+			const int downHillStep = nb_tB+nb_tA+deltaX; 
 			
-//!\todo cimg_for_inX(image, i, 0,nb_tB-1) image(i)=baseline;
-			//! 1. Crteate the rbaseline on graph
+			cimg_for_inX(image,0,nb_tB,z){image(z)=baseline;}
+			cimg_for_inX(image,nb_tB,nb_tB+nb_tA,y){
+				image(y)=hill;
+				hill += climbRate;
+			}
+			cimg_for_inX(image,nb_tB+nb_tA,downHillStep,x){
+				image(x)= hill;
+				hill -= downRate;
+			}
+			cimg_for_inX(image,downHillStep,image.width()-1,w){image(w)=baseline;}
+			
+
+		/*	Loop without cimg for 
+		 * //! 1. Crteate the rbaseline on graph
 			fillBaseline(baseline);//call the function from Signal class
 			
-//!\todo cimg_for_inX(...
 			for( int i=nb_tB; i<nb_tB+nb_tA; i++){//duration of the amplitude 
 				image(i)=hill;
 				//! 2. Increase the rise of the amplitude
 				hill += climbRate;//incrementing the rise
 			}//for (duration of amplitude)
 
-//!\todo cimg_for_inX(...
 			//! 3. Start the descent of the amplitude
-			const int downHillStep = nb_tB+nb_tA+deltaX; 
 			for(int i=nb_tB+nb_tA; i <downHillStep; i++){//duration of the descent
 				image(i)= hill;
 				//! 4. decrease the amplitude with the step 
 				hill -= downRate;//decrement with the descent step 
 			}//for(duration of the descent)
-//!\todo cimg_for_inX(image, i, nb_tB...,image.width()-1) image(i)=baseline;
+*/
 
 		}
 	private:	
