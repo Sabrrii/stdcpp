@@ -22,11 +22,10 @@ using namespace cimg_library;
  * **/
 template<class T>
 class Signal{
-	protected:
+	public:
 		CImg<T> image;
 		T baseline;
 		virtual void setImage(int width){ image.assign(width);}
-	public:
 		Signal(){}
 		virtual void fillBaseline(float baseline) {image.fill(baseline);}
 		virtual void display(std::string title="Signal"){
@@ -285,7 +284,22 @@ std::cout<<attribute_name<<"="<<nb_tB<<std::endl;
 std::cout<<attribute_name<<"="<<nb_tA<<std::endl;
 
 return 0;
+};
+
+//!Merge graph into one display
+/**
+ * \param signal : [in] signal to merge
+ * \param sig : [in] signal to merge 
+ * \param visu : [out] CImg with both merged graph 
+ * **/
+int collateGraph(Signal<int> *signal,Signal<float> *sig){
+	CImg <float> visu(signal->image.width(),1,1,2);
+	visu.get_shared_channel(0)=signal->image;
+	visu.get_shared_channel(1)=sig->image;
+	visu.display_graph("Merged graph");
+	return 0;
 }
+
 
 //! hello starts here
 /**
@@ -341,8 +355,10 @@ int main(int argc, char **argv)
     if(show) signal->display();
 	#endif
 	
-	return 0;
+	return 1;
   }
+  
+  
 	Signal<int> *signal = SignalFactory<int>::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
 	Signal<float> *signalU = SignalFactory<float>::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
 	if(signal ==NULL){std::cerr<<"Error type of signal doesn't exist"<<std::endl; return 1;}
@@ -350,13 +366,15 @@ int main(int argc, char **argv)
 	
 	signal->setSignal();
     signalU->setSignal();
+	
+	collateGraph(signal,signalU);
+	
 
-
-  
-  #if cimg_display!=0
-  if(show) signal->display();
-  if(show) signalU->display("signal Float");
-  #endif
+///if want both graph in one display comment the code below so the graph's windows doesn't pop when you close the collate graph window
+   #if cimg_display!=0
+   if(show) signal->display();
+   if(show) signalU->display("signal Float");
+   #endif
   
   //if(file_o) signal->image.save(file_o);
 
