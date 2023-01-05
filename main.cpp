@@ -8,6 +8,9 @@
 #include <string>         // std::string
 #include <iostream>       // std::cout
 #include "../CImg/CImg.h"  // CImg
+
+#include <netcdfcpp.h>
+#include "struct_parameter_NetCDF.h"
 using namespace cimg_library;
 
 
@@ -26,9 +29,9 @@ class Signal{
 	public:
 		Signal(){}
 		virtual void fillBaseline(float baseline) {image.fill(baseline);}
-		virtual void display(){
+		virtual void display(std::string title="Signal"){
 			image.print("image");
-			image.display_graph("Signal");
+			image.display_graph(title.c_str());
 		}
 		virtual void setSignal()=0;
 	
@@ -117,19 +120,19 @@ class Tri : public Rect<T>{
 			float hill= this->baseline+climbRate;//first step of the rise
 			const float downHillStep = this->nb_tB+this->nb_tA+deltaX; 
 			
-			cimg_for_inX(this->image,0,this->nb_tB,z){this->image(z)=this->baseline;}
-			cimg_for_inX(this->image,this->nb_tB,this->nb_tB+this->nb_tA,y){
-				this->image(y)=hill;
+			cimg_for_inX(this->image,0,this->nb_tB,i){this->image(i)=this->baseline;}
+			cimg_for_inX(this->image,this->nb_tB,this->nb_tB+this->nb_tA,i){
+				this->image(i)=hill;
 				hill += climbRate;
 			}
-			cimg_for_inX(this->image,this->nb_tB+this->nb_tA,downHillStep,x){
-				this->image(x)= hill;
+			cimg_for_inX(this->image,this->nb_tB+this->nb_tA,downHillStep,i){
+				this->image(i)= hill;
 				hill -= downRate;
 			}
-			cimg_for_inX(this->image,downHillStep,this->image.width()-1,w){this->image(w)=this->baseline;}
+			cimg_for_inX(this->image,downHillStep,this->image.width()-1,i){this->image(i)=this->baseline;}
 			
 
-		/*	Loop without cimg for 
+		/* Loop without cimg for 
 		 * //! 1. Crteate the rbaseline on graph
 			fillBaseline(baseline);//call the function from Signal class
 			
@@ -145,7 +148,7 @@ class Tri : public Rect<T>{
 				//! 4. decrease the amplitude with the step 
 				hill -= downRate;//decrement with the descent step 
 			}//for(duration of the descent)
-*/
+		 */
 
 		}
 	private:	
@@ -230,6 +233,60 @@ class SignalFactory{
 		}
 };//Class SignalFactory
 
+//!Read into a binary file 
+/**
+ * \param baseline : [in]
+ * \param amplitude : [in]
+ * \param nb_tB : [in] time before add the amplitude 
+ * \param nb_tA : [in] duration of the amplitude 
+ * \param i : [in] file name to read 
+ * **/
+int readFile(float  &amplitude, float &baseline, int &nb_tB, int &nb_tA, std::string i){
+  std::string fi = i;//file parameters.nc
+  ///parameter class
+  CParameterNetCDF fp;
+  //open file
+  int error=fp.loadFile((char *)fi.c_str());
+  if(error){std::cerr<<"loadFile return "<< error <<std::endl;return error;}
+  
+  ///Rectangle
+    int process; std::string process_name="rectangle";
+    //load process variable
+    error = fp.loadVar(process,&process_name);
+    if(error){std::cerr<<"loadVar return" <<error<<std::endl;return error;}
+    std::cout<<process_name<<"="<<process<<std::endl;
+    
+    ///amplitude
+    std::string attribute_name = "amplitude";
+    if (error = fp.loadAttribute(attribute_name,amplitude)!=0){
+   	 std::cerr<<"Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
+    }
+std::cout<<attribute_name<<"="<<amplitude<<std::endl;    
+
+    ///baseline
+    attribute_name = "baseline";
+    if (error = fp.loadAttribute(attribute_name,baseline)!=0){
+   	 std::cerr<<"Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
+    }
+std::cout<<attribute_name<<"="<<baseline<<std::endl;
+
+    ///nb_tB
+    attribute_name = "nb_tB";
+    if (error =fp.loadAttribute(attribute_name,nb_tB)!=0){
+   	 std::cerr<<"Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
+    }    
+std::cout<<attribute_name<<"="<<nb_tB<<std::endl;
+
+    ///nb_tA
+    attribute_name = "nb_tA";
+    if (error =fp.loadAttribute(attribute_name,nb_tA)!=0){
+   	 std::cerr<<"Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
+    }
+std::cout<<attribute_name<<"="<<nb_tA<<std::endl;
+
+return 0;
+}
+
 //! hello starts here
 /**
  * \warning \c argc and \c argv not used yet, see argp branch (e.g. git checkout argp)
@@ -262,28 +319,43 @@ int main(int argc, char **argv)
  
   const char type = cimg_option("-type",4,"type of the signal 1:constant, 2:rect, 3:tri, 4:pac");
   const int width = cimg_option("-n", 1000,"Width of image");
-  const float baseline = cimg_option("-b", 10.0,"Baseline of the graph");
-  const float amplitude = cimg_option("-a", 100.0,"Amplitude to add at the baseline");
-  const int nb_tB = cimg_option("-tb", 100,"Time before adding the amplitude to the baseline");
-  const int nb_tA = cimg_option("-ta", 100,"Duration of the baseline increase");
+  float baseline = cimg_option("-b", 10.0,"Baseline of the graph");
+  float amplitude = cimg_option("-a", 100.0,"Amplitude to add at the baseline");
+  int nb_tB = cimg_option("-tb", 100,"Time before adding the amplitude to the baseline");
+  int nb_tA = cimg_option("-ta", 100,"Duration of the baseline increase");
   const float downRate = cimg_option("-rate", 0.5,"Step for the slope in case of signal 3:tri");
   const float rate1 = cimg_option("-r1",170.0,"rate1 in case of signal 4: pac");
   const float rate2 = cimg_option("-r2",100.0,"rate2 in case of signal 4: pac");
-
+  const std::string i = cimg_option("-i", "","file name  to read (parameters.nc)");
   
    if(show_help) {/*print_helps(std::cerr);*/return 0;}
   //}CLI option
 
-  Signal<float> *signal = SignalFactory<float>::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
-  
-  //Signal<int> signalU = SignalFactory::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
-  
-  
-  if(signal ==NULL){std::cerr<<"Error type of signal doesn't exist"<<std::endl; return 1;}
-  signal->setSignal();
+  ///Check if the option is empty or not 
+  if(i!=""){
+	readFile(amplitude,baseline,nb_tB,nb_tA,i);
+	Signal<int> *signal = SignalFactory<int>::NewSignal(2,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
+	signal->setSignal();
+	
+	#if cimg_display!=0
+    if(show) signal->display();
+	#endif
+	
+	return 0;
+  }
+	Signal<int> *signal = SignalFactory<int>::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
+	Signal<float> *signalU = SignalFactory<float>::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
+	if(signal ==NULL){std::cerr<<"Error type of signal doesn't exist"<<std::endl; return 1;}
+	if(signalU ==NULL){std::cerr<<"Error type of signal doesn't exist"<<std::endl; return 1;}
+	
+	signal->setSignal();
+    signalU->setSignal();
+
+
   
   #if cimg_display!=0
   if(show) signal->display();
+  if(show) signalU->display("signal Float");
   #endif
   
   //if(file_o) signal->image.save(file_o);
