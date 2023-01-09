@@ -11,6 +11,11 @@
 
 #include <netcdfcpp.h>
 #include "struct_parameter_NetCDF.h"
+#include "../CImg.Tool/CImg_NetCDF.h"
+#include <list>
+#include <vector>
+
+using namespace std;
 using namespace cimg_library;
 
 
@@ -25,13 +30,26 @@ class Signal{
 	public:
 		CImg<T> image;
 		T baseline;
+		//! Assign a width to the image
+		/** 
+		 * \param width : [in]
+		 * **/
 		virtual void setImage(int width){ image.assign(width);}
 		Signal(){}
+		//!Fill the graph with baseline
+		/**
+		 * \param baseline : [in]
+		 * **/
 		virtual void fillBaseline(float baseline) {image.fill(baseline);}
+		//!Create the display to see the graph 
+		/**
+		 * \param title : [in]
+		 * **/
 		virtual void display(std::string title="Signal"){
 			image.print("image");
 			image.display_graph(title.c_str());
 		}
+		//! Virtual function to create the signal
 		virtual void setSignal()=0;
 	
 };//class Signal
@@ -43,7 +61,7 @@ class Signal{
 template<class T>
 class Constant : public Signal<T>{
 	public:
-		//!Create a constant graph
+		//!Constructor for constant signal 
 		/**
 		 * \param width : [in] 
 		 * \param baseline : [in]
@@ -54,10 +72,15 @@ class Constant : public Signal<T>{
 			this->setImage(width);
 			this->baseline=baseline;
 		}
+		//! Create the constant signal 
+		/**
+		 * Mandatory function from the inheritance
+		 * **/
 		void setSignal(){
 			this->fillBaseline(this->baseline);//call the function from Signal class
 		}
 };//class Constant
+
 //!Create Rectangle signal
 /**
  *  Create a graph with a rectangle signal 
@@ -65,9 +88,9 @@ class Constant : public Signal<T>{
 template<class T>
 class Rect : public Constant<T>{
 	public:
-		//!Create a graph with  an amplitude 
+		//!Constructor for  a graph with  an amplitude 
 		/**
-		 * \param img : [out] 
+		 * \param image : [out] 
 		 * \param baseline : [in]
 		 * \param amplitude : [in]
 		 * \param nb_tB : [in] time before add the amplitude 
@@ -80,6 +103,10 @@ class Rect : public Constant<T>{
 			this->nb_tB=nb_tB;
 			this->nb_tA=nb_tA;
 		}
+		//! Create the Rectangle signal 
+		/**
+		 * Mandatory function from the inheritance
+		 * **/
 		void setSignal(){
 			this->fillBaseline(this->baseline);//call the function from Signal class
 			for( int i=0; i<nb_tA; i++){//duration of the amplitude 
@@ -99,9 +126,9 @@ class Rect : public Constant<T>{
 template<class T> 
 class Tri : public Rect<T>{
 	public :
-		//! Create a graph with increasing amplitude 
+		//! Constructor for  a graph with increasing amplitude 
 		/**
-		 * \param img : [out] 
+		 * \param image : [out] 
 		 * \param baseline : [in]
 		 * \param amplitude : [in]
 		 * \param nb_tB : [in] time before add the amplitude 
@@ -113,41 +140,31 @@ class Tri : public Rect<T>{
 		Tri(float width,T baseline,T amplitude,int nb_tB,int nb_tA,float downRate) : Rect<T>(width,baseline,amplitude,nb_tB,nb_tA){
 			this->downRate=downRate;
 		}
+		
+		//! Create the Triangle signal 
+		/**
+		 * Mandatory function from the inheritance
+		 * **/
 		void setSignal(){
 			const float climbRate = this->amplitude/this->nb_tA;//give the size of the increase step
 			const float deltaX = this->amplitude/downRate; //give the size of the slope
 			float hill= this->baseline+climbRate;//first step of the rise
 			const float downHillStep = this->nb_tB+this->nb_tA+deltaX; 
 			
+			//! 1. Create the baseline on graph
 			cimg_for_inX(this->image,0,this->nb_tB,i){this->image(i)=this->baseline;}
+			//! 2. Increase the rise of the amplitude
 			cimg_for_inX(this->image,this->nb_tB,this->nb_tB+this->nb_tA,i){
 				this->image(i)=hill;
-				hill += climbRate;
+				hill += climbRate;//incrementing the rise
 			}
+			//! 3. Start the descent of the amplitude
 			cimg_for_inX(this->image,this->nb_tB+this->nb_tA,downHillStep,i){
 				this->image(i)= hill;
-				hill -= downRate;
-			}
-			cimg_for_inX(this->image,downHillStep,this->image.width()-1,i){this->image(i)=this->baseline;}
-			
-
-		/* Loop without cimg for 
-		 * //! 1. Crteate the rbaseline on graph
-			fillBaseline(baseline);//call the function from Signal class
-			
-			for( int i=nb_tB; i<nb_tB+nb_tA; i++){//duration of the amplitude 
-				image(i)=hill;
-				//! 2. Increase the rise of the amplitude
-				hill += climbRate;//incrementing the rise
-			}//for (duration of amplitude)
-
-			//! 3. Start the descent of the amplitude
-			for(int i=nb_tB+nb_tA; i <downHillStep; i++){//duration of the descent
-				image(i)= hill;
-				//! 4. decrease the amplitude with the step 
 				hill -= downRate;//decrement with the descent step 
-			}//for(duration of the descent)
-		 */
+			}
+			//! 4. Draw the baseline 
+			cimg_for_inX(this->image,downHillStep,this->image.width()-1,i){this->image(i)=this->baseline;}
 
 		}
 	private:	
@@ -155,16 +172,16 @@ class Tri : public Rect<T>{
 
 };//class Tri
 
-//! Create a graph with a Signal 
+//! Create a graph with a double exponential  signal 
 /**
  *   Create a pac curve signal 
  * **/
 template<class T>
 class Pac : public Constant<T>{
 	public :
-		//! Create a graph with a Signal 
+		//! Constructor for the double exponential  signal
 		/**
-		 * \param img : [out] 
+		 * \param image : [out] 
 		 * \param width : [in]
 		 * \param baseline : [in]
 		 * \param amplitude : [in]
@@ -180,7 +197,10 @@ class Pac : public Constant<T>{
 			this->rate1=rate1;
 			this->rate2=rate2;
 		}
-		//! \todo COMMENT
+		//! Create the double exponential  signal
+		/**
+		 * Mandatory function from the inheritance
+		 * **/
 		void setSignal(){
 			this->fillBaseline(this->baseline);//call the function from Signal class
 			double t = 0;
@@ -201,7 +221,7 @@ class Pac : public Constant<T>{
 
 //!Signal Factory 
 /**
- * \param img : [out] 
+ * \param image : [out] 
  * \param width : [in]
  * \param baseline : [in]
  * \param amplitude : [in]
@@ -211,7 +231,7 @@ class Pac : public Constant<T>{
  * \param rate1 : [in]
  * \param rate2 : [in]
  * 
- *  To choose witch signal to create 
+ *  To choose witch signal create 
  * **/
 template<class T>
 class SignalFactory{
@@ -239,6 +259,8 @@ class SignalFactory{
  * \param nb_tB : [in] time before add the amplitude 
  * \param nb_tA : [in] duration of the amplitude 
  * \param i : [in] file name to read 
+ * 
+ * Permit to use the data variable from the file 
  * **/
 int readFile(float  &amplitude, float &baseline, int &nb_tB, int &nb_tA, std::string i){
   std::string fi = i;//file parameters.nc
@@ -248,7 +270,7 @@ int readFile(float  &amplitude, float &baseline, int &nb_tB, int &nb_tA, std::st
   int error=fp.loadFile((char *)fi.c_str());
   if(error){std::cerr<<"loadFile return "<< error <<std::endl;return error;}
   
-  ///Rectangle
+  ///Rectangle signal
     int process; std::string process_name="rectangle";
     //load process variable
     error = fp.loadVar(process,&process_name);
@@ -257,34 +279,105 @@ int readFile(float  &amplitude, float &baseline, int &nb_tB, int &nb_tA, std::st
     
     ///amplitude
     std::string attribute_name = "amplitude";
-    if (error = fp.loadAttribute(attribute_name,amplitude)!=0){
+    if ((error = fp.loadAttribute(attribute_name,amplitude))!=0){
    	 std::cerr<<"Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
     }
 std::cout<<attribute_name<<"="<<amplitude<<std::endl;    
 
     ///baseline
     attribute_name = "baseline";
-    if (error = fp.loadAttribute(attribute_name,baseline)!=0){
+    if ((error = fp.loadAttribute(attribute_name,baseline))!=0){
    	 std::cerr<<"Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
     }
 std::cout<<attribute_name<<"="<<baseline<<std::endl;
 
     ///nb_tB
     attribute_name = "nb_tB";
-    if (error =fp.loadAttribute(attribute_name,nb_tB)!=0){
+    if ((error =fp.loadAttribute(attribute_name,nb_tB))!=0){
    	 std::cerr<<"Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
     }    
 std::cout<<attribute_name<<"="<<nb_tB<<std::endl;
 
     ///nb_tA
     attribute_name = "nb_tA";
-    if (error =fp.loadAttribute(attribute_name,nb_tA)!=0){
+    if ((error =fp.loadAttribute(attribute_name,nb_tA))!=0){
    	 std::cerr<<"Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
     }
 std::cout<<attribute_name<<"="<<nb_tA<<std::endl;
 
 return 0;
 };
+
+//!Save the image into the saveImg.nc file
+/**
+ * \param signal : [in]
+ * **/
+int writeDataFile(Signal<int> *signal){
+//dimension names
+  vector<string> dim_names;
+  string dim_time="dimF";
+  dim_names.push_back("dimS");
+
+//variable names (and its unit)
+///single
+  string var_name="signal";
+  string unit_name="none";
+
+
+/*CImg test*/
+  string/**/ fo="saveImg.nc";
+  typedef int Tdata;//char, int, float, double, unsigned char (byte) ok
+  CImgNetCDF<Tdata> cimgSave;
+  cout << "CImgNetCDF::saveNetCDFFile(" << fo << ",...) return " << cimgSave.saveNetCDFFile((char*)fo.c_str()) << endl;
+  cout << "CImgNetCDF::addNetCDFDims(" << fo << ",...) return " << cimgSave.addNetCDFDims(signal->image,dim_names,dim_time) << endl;
+  cout << "CImgNetCDF::addNetCDFVar(" << fo << ",...) return " << cimgSave.addNetCDFVar(signal->image,var_name,unit_name) << endl;
+  //add attributes
+  if (!(cimgSave.pNCvar->add_att("long_name","fake test signal, e.g. data (lib/class CImgNetCDF)"))) std::cerr<<"error: while adding attribute long name (NC_ERROR)."<<std::endl;
+	cout << "CImgNetCDF::addNetCDFData(" << fo << ",...) return " << cimgSave.addNetCDFData(signal->image) << endl;
+	
+  //add global attributes
+  cimgSave.pNCFile->add_att("library","CImg_NetCDF");
+  cimgSave.pNCFile->add_att("library_version",CIMG_NETCDF_VERSION);
+  cout << endl;
+/**/
+
+   cout << "*** SUCCESS writing example file " << fo << "!" << endl;
+   return 0;
+}
+
+
+//! Initialisation of the file for NetCDF save
+/**
+ * \param cimgSave : [in]  object for NetCDF save
+ * \param listImgSign : [in] list of image
+ * \param fileName : [in] where save the image
+ * **/
+int InitListFile(CImgListNetCDF<float> *cimgSave, CImgList<float> listImgSign, string fileName){
+//dimension names
+  vector<string> dim_names;
+  string dim_time="dimF";
+  dim_names.push_back("dimS");
+    
+  //variable names
+  vector<string> var_names;
+  vector<string> unit_names;
+  
+  for(int i=0;i<listImgSign.size();i++){
+	char str[10] = "signal";
+	char t[4];
+	sprintf(t,"%d",i);
+	strcat(str,t);
+	var_names.push_back(str);
+	unit_names.push_back("pixel");
+  }
+
+  cimgSave->saveNetCDFFile((char*)fileName.c_str());
+  cimgSave->addNetCDFDims(listImgSign,dim_names,dim_time);
+  cimgSave->addNetCDFVar(listImgSign,var_names,unit_names);
+  
+  return 0;
+}
+
 
 //!Merge graph into one display
 /**
@@ -299,6 +392,7 @@ int collateGraph(Signal<int> *signal,Signal<float> *sig){
 	visu.display_graph("Merged graph");
 	return 0;
 }
+
 
 
 //! hello starts here
@@ -341,6 +435,7 @@ int main(int argc, char **argv)
   const float rate1 = cimg_option("-r1",170.0,"rate1 in case of signal 4: pac");
   const float rate2 = cimg_option("-r2",100.0,"rate2 in case of signal 4: pac");
   const std::string i = cimg_option("-i", "","file name  to read (parameters.nc)");
+  const int ns = cimg_option("-ns",1,"number of duplication of the signal ");
   
    if(show_help) {/*print_helps(std::cerr);*/return 0;}
   //}CLI option
@@ -358,25 +453,44 @@ int main(int argc, char **argv)
 	return 1;
   }
   
-  
-	Signal<int> *signal = SignalFactory<int>::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
-	Signal<float> *signalU = SignalFactory<float>::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
-	if(signal ==NULL){std::cerr<<"Error type of signal doesn't exist"<<std::endl; return 1;}
-	if(signalU ==NULL){std::cerr<<"Error type of signal doesn't exist"<<std::endl; return 1;}
-	
-	signal->setSignal();
-    signalU->setSignal();
-	
-	collateGraph(signal,signalU);
-	
+	Signal<int> *signalInt = SignalFactory<int>::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
+	Signal<float> *signalFloat = SignalFactory<float>::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
+	if(signalInt ==NULL){std::cerr<<"Error type of signal doesn't exist"<<std::endl; return 1;}
+	if(signalFloat ==NULL){std::cerr<<"Error type of signal doesn't exist"<<std::endl; return 1;}
 
-///if want both graph in one display comment the code below so the graph's windows doesn't pop when you close the collate graph window
-   #if cimg_display!=0
-   if(show) signal->display();
-   if(show) signalU->display("signal Float");
-   #endif
+	signalInt->setSignal();
+    signalFloat->setSignal();
+    
+    #if cimg_display!=0
+    collateGraph(signalInt,signalFloat);
+    #endif
+    
+    //Init the file to save 
+    CImgList<float> listImgSig (signalFloat->image,signalInt->image);
+    CImgListNetCDF<float> cimgSave;
+	InitListFile(&cimgSave,listImgSig,"saveListImg.nc");
+	
+	
+	CImg <float> visu(signalFloat->image.width(),1,1,ns);
+	//Duplicate signal for saving and display them 	
+	for(int i=0;i<ns;++i){
+		amplitude += i*100;
+		signalFloat = SignalFactory<float>::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
+		signalFloat->setSignal();
+		
+		signalInt =  SignalFactory<int>::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
+		signalInt->setSignal();
+		
+		//add the the signal into the display
+		visu.get_shared_channel(i)=signalFloat->image;
+		
+		listImgSig = {signalFloat->image,signalInt->image};
+		cimgSave.addNetCDFData(listImgSig );
+		
+	}
+	//print the dislplay with all the signals
+	visu.display_graph("Merged graph");
   
-  //if(file_o) signal->image.save(file_o);
 
   return 0;
 }//main
