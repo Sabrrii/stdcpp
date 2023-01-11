@@ -12,6 +12,8 @@
 #include <netcdfcpp.h>
 #include "struct_parameter_NetCDF.h"
 #include "../CImg.Tool/CImg_NetCDF.h"
+#include "../RockAMali/CDataGenerator_PAC.hpp"
+
 #include <list>
 #include <vector>
 
@@ -461,6 +463,15 @@ int main(int argc, char **argv)
 	signalInt->setSignal();
     signalFloat->setSignal();
     
+    
+    CDataGenerator<Tdata, Taccess> *generate=CDataGenerator_factory<Tdata, Taccess>::NewCDataGenerator 
+      (generator_type, generator_type_list, locks);
+    
+    
+    
+    std::vector<std::string> generator_type_list;CDataGenerator_factory<Tdata, Taccess>::show_factory_types(generator_type_list);std::cout<<std::endl;
+    
+    
     #if cimg_display!=0
     collateGraph(signalInt,signalFloat);
     #endif
@@ -475,9 +486,11 @@ int main(int argc, char **argv)
 	//Duplicate signal for saving and display them 	
 	for(int i=0;i<ns;++i){
 		amplitude += i*100;
+		//Signal 0 with ncview
 		signalFloat = SignalFactory<float>::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
 		signalFloat->setSignal();
 		
+		//Signal 1 with ncview
 		signalInt =  SignalFactory<int>::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
 		signalInt->setSignal();
 		
