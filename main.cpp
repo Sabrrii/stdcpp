@@ -7,12 +7,16 @@
 
 #include <string>         // std::string
 #include <iostream>       // std::cout
-#include "../CImg/CImg.h"  // CImg
+//#include "../CImg/CImg.h"  // CImg
 
-#include <netcdfcpp.h>
+//#include <netcdfcpp.h>
 #include "struct_parameter_NetCDF.h"
-#include "../CImg.Tool/CImg_NetCDF.h"
+//#include "../CImg.Tool/CImg_NetCDF.h"
 #include "../RockAMali/CDataGenerator_PAC.hpp"
+
+#include <omp.h>
+#include "../RockAMali/CDataGenerator_factory.hpp"
+#include "../RockAMali/SDataTypes.hpp"
 
 #include <list>
 #include <vector>
@@ -438,7 +442,7 @@ int main(int argc, char **argv)
   const float rate2 = cimg_option("-r2",100.0,"rate2 in case of signal 4: pac");
   const std::string i = cimg_option("-i", "","file name  to read (parameters.nc)");
   const int ns = cimg_option("-ns",1,"number of duplication of the signal ");
-  
+  const std::string generator_type=cimg_option("--gen_factory","count","gen a peak");
    if(show_help) {/*print_helps(std::cerr);*/return 0;}
   //}CLI option
 
@@ -454,7 +458,7 @@ int main(int argc, char **argv)
 	
 	return 1;
   }
-  
+  /*
 	Signal<int> *signalInt = SignalFactory<int>::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
 	Signal<float> *signalFloat = SignalFactory<float>::NewSignal(type,width,baseline,amplitude,nb_tB,nb_tA,downRate,rate1,rate2);
 	if(signalInt ==NULL){std::cerr<<"Error type of signal doesn't exist"<<std::endl; return 1;}
@@ -462,16 +466,7 @@ int main(int argc, char **argv)
 
 	signalInt->setSignal();
     signalFloat->setSignal();
-    
-    
-    CDataGenerator<Tdata, Taccess> *generate=CDataGenerator_factory<Tdata, Taccess>::NewCDataGenerator 
-      (generator_type, generator_type_list, locks);
-    
-    
-    
-    std::vector<std::string> generator_type_list;CDataGenerator_factory<Tdata, Taccess>::show_factory_types(generator_type_list);std::cout<<std::endl;
-    
-    
+      
     #if cimg_display!=0
     collateGraph(signalInt,signalFloat);
     #endif
@@ -502,7 +497,38 @@ int main(int argc, char **argv)
 		
 	}
 	//print the dislplay with all the signals
-	visu.display_graph("Merged graph");
+	visu.display_graph("Merged graph");*/
+  
+    
+    std::vector<std::string> generator_type_list;CDataGenerator_factory<Tdata, Taccess>::show_factory_types(generator_type_list);std::cout<<std::endl;
+
+	int nbuffer = 1;
+  //OpenMP locks
+  omp_lock_t print_lock;omp_init_lock(&print_lock);
+  
+    //! circular buffer
+  CImgList<Tdata> images(nbuffer,width,1,1,1);
+  images[0].fill(0);
+  images[0].print("image",false);
+  //access locking
+  omp_lock_t lck;omp_init_lock(&lck);
+  
+   //! thread locks
+  std::vector<omp_lock_t*> locks;locks.push_back(&print_lock);locks.push_back(&lck);
+  
+    //! access and status of buffer
+  CImg<Taccess> access(nbuffer,1,1,1);
+  access.fill(0);//free
+  access.print("access (free state)",false);fflush(stderr);
+  
+  std::cout << "test1" <<std::endl;
+	CDataGenerator<Tdata, Taccess> *generate=CDataGenerator_factory<Tdata, Taccess>::NewCDataGenerator 
+      (generator_type, generator_type_list, locks);
+       std::cout << "test2" <<std::endl;  
+    for (unsigned int i=0;i<ns;++i){
+		generate->iteration(access,images ,0,i);
+		images[0].display_graph();
+	}
   
 
   return 0;
