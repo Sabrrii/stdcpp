@@ -17,6 +17,8 @@
 #include <omp.h>
 #include "../RockAMali/CDataGenerator_factory.hpp"
 #include "../RockAMali/SDataTypes.hpp"
+#include "../RockAMali/CDataStore.hpp"
+
 
 #include <list>
 #include <vector>
@@ -442,9 +444,23 @@ int main(int argc, char **argv)
   const float rate2 = cimg_option("-r2",100.0,"rate2 in case of signal 4: pac");
   const std::string i = cimg_option("-i", "","file name  to read (parameters.nc)");
   const int ns = cimg_option("-ns",1,"number of duplication of the signal ");
+  
+  //CData Factory
   const std::string generator_type=cimg_option("--gen_factory","count","gen a peak");
    if(show_help) {/*print_helps(std::cerr);*/return 0;}
+
+//CDataStore 
+  const int digit=cimg_option("-d",6,  "number of digit for file names");
+  const char* imagefilename = cimg_option("-o","store.nc",std::string("output file name (e.g." +
+#ifdef DO_NETCDF
+  std::string(" \"-o data.nc\" or ") +
+#endif //NetCDF
+  std::string(" \"-o data.cimg -d 3\" gives data_???.cimg)")
+  ).c_str());//ouput file name for raw
+
   //}CLI option
+  
+  
 
   ///Check if the option is empty or not 
   if(i!=""){
@@ -501,6 +517,9 @@ int main(int argc, char **argv)
   
     
     std::vector<std::string> generator_type_list;CDataGenerator_factory<Tdata, Taccess>::show_factory_types(generator_type_list);std::cout<<std::endl;
+       
+       
+
 
 	int nbuffer = 1;
   //OpenMP locks
@@ -521,16 +540,35 @@ int main(int argc, char **argv)
   access.fill(0);//free
   access.print("access (free state)",false);fflush(stderr);
   
-  std::cout << "test1" <<std::endl;
+  
+  
 	CDataGenerator<Tdata, Taccess> *generate=CDataGenerator_factory<Tdata, Taccess>::NewCDataGenerator 
       (generator_type, generator_type_list, locks);
-       std::cout << "test2" <<std::endl;  
+      
+     std::cout <<"Type de signal :" <<generate->class_name<< std::endl;
+     std::vector<std::string> var_unit_long_names;
+    CDataStore<Tdata,Taccess> store(locks,imagefilename,digit
+#ifdef DO_NETCDF
+      , "generator", generate->class_name //generator_type
+      , var_unit_long_names
+#endif //NetCDF
+      );
+
+       
     for (unsigned int i=0;i<ns;++i){
 		generate->iteration(access,images ,0,i);
-		images[0].display_graph();
-	}
-  
+		store.iteration(access,images, 0,i);
+	}//for
+	if(!(generate->class_name=="CDataGenerator")){		
+		#ifdef DO_NETCDF
+		  //close NC file 
+		  CDataGenerator_Peak<Tdata,Tproc, Taccess>*genNC=(CDataGenerator_Peak<Tdata,Tproc, Taccess>*)generate;
+		  genNC->nc.pNCFile->close(); 
+		#endif //DO_NETCDF
+	}//if
 
+
+	images[0].display_graph();
   return 0;
 }//main
 
