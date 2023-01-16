@@ -401,6 +401,18 @@ int collateGraph(Signal<int> *signal,Signal<float> *sig){
 	return 0;
 }
 
+//!Merge  a graph list  into one display
+/**
+ * \param list : [in] list of signal to merge
+ * \param visu : [out] CImg with all graph merged
+ * **/
+void collateListGraph(CImgList<float> list){
+	CImg <float> visu(list[0].width(),1,1,list.width());
+	for(int i=0; i<list.width();++i){
+		visu.get_shared_channel(i)=list[i];
+	}
+	visu.display_graph("Merged graph");
+}
 
 
 //! hello starts here
@@ -444,6 +456,7 @@ int main(int argc, char **argv)
   const float rate2 = cimg_option("-r2",100.0,"rate2 in case of signal 4: pac");
   const std::string i = cimg_option("-i", "","file name  to read (parameters.nc)");
   const int ns = cimg_option("-ns",1,"number of duplication of the signal ");
+  const int nbuffer= cimg_option("-nbB",1,"number of buffer to use ");
   
   //CData Factory
   const std::string generator_type=cimg_option("--gen_factory","count","gen a peak");
@@ -518,10 +531,6 @@ int main(int argc, char **argv)
     
     std::vector<std::string> generator_type_list;CDataGenerator_factory<Tdata, Taccess>::show_factory_types(generator_type_list);std::cout<<std::endl;
        
-       
-
-
-	int nbuffer = 1;
   //OpenMP locks
   omp_lock_t print_lock;omp_init_lock(&print_lock);
   
@@ -554,10 +563,10 @@ int main(int argc, char **argv)
 #endif //NetCDF
       );
 
-       
+
     for (unsigned int i=0;i<ns;++i){
-		generate->iteration(access,images ,0,i);
-		store.iteration(access,images, 0,i);
+		generate->iteration(access,images ,i,i);
+		store.iteration(access,images, i,i);
 	}//for
 	if(!(generate->class_name=="CDataGenerator")){		
 		#ifdef DO_NETCDF
@@ -565,9 +574,9 @@ int main(int argc, char **argv)
 		  CDataGenerator_Peak<Tdata,Tproc, Taccess>*genNC=(CDataGenerator_Peak<Tdata,Tproc, Taccess>*)generate;
 		  genNC->nc.pNCFile->close(); 
 		#endif //DO_NETCDF
-	}//if
+	};//if
 
-
+	collateListGraph(images);
 	images[0].display_graph();
   return 0;
 }//main
