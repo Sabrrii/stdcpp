@@ -563,10 +563,13 @@ int main(int argc, char **argv)
 #endif //NetCDF
       );
 
-
-    for (unsigned int i=0;i<ns;++i){
-		generate->iteration(access,images ,i,i);
-		store.iteration(access,images, i,i);
+	int j = 0;
+    for (unsigned int i=0;i<ns;++i,j++){
+		generate->iteration(access,images ,j,i);
+		store.iteration(access,images, j,i);
+		if(j>=nbuffer-1){
+			j=-1;
+		}
 	}//for
 	if(!(generate->class_name=="CDataGenerator")){		
 		#ifdef DO_NETCDF
@@ -575,9 +578,7 @@ int main(int argc, char **argv)
 		  genNC->nc.pNCFile->close(); 
 		#endif //DO_NETCDF
 	};//if
-
 	collateListGraph(images);
-	images[0].display_graph();
   return 0;
 }//main
 
