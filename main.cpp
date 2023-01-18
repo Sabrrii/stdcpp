@@ -554,7 +554,7 @@ int main(int argc, char **argv)
 	CDataGenerator<Tdata, Taccess> *generate=CDataGenerator_factory<Tdata, Taccess>::NewCDataGenerator 
       (generator_type, generator_type_list, locks);
       
-     std::cout <<"Type de signal :" <<generate->class_name<< std::endl;
+    /*std::cout <<"Type de signal :" <<generate->class_name<< std::endl;
      std::vector<std::string> var_unit_long_names;
     CDataStore<Tdata,Taccess> store(locks,imagefilename,digit
 #ifdef DO_NETCDF
@@ -579,6 +579,58 @@ int main(int argc, char **argv)
 		#endif //DO_NETCDF
 	};//if
 	collateListGraph(images);
+	*/
+	
+	
+omp_set_dynamic(0);
+omp_set_num_threads(2);
+#pragma omp parallel shared(access,images,nbuffer,locks,imagefilename)
+	{
+		int x = omp_get_thread_num();//omp_get_max_threads();
+		switch(x){
+			case(0):
+			{
+				int j = 0;
+				for (unsigned int i=0;i<ns;++i,j++){
+					generate->iteration(access,images ,j,i);
+					if(j>=nbuffer-1){
+						j=-1;
+					}
+				}//for
+				if(!(generate->class_name=="CDataGenerator")){		
+					#ifdef DO_NETCDF
+					  //close NC file 
+					  CDataGenerator_Peak<Tdata,Tproc, Taccess>*genNC=(CDataGenerator_Peak<Tdata,Tproc, Taccess>*)generate;
+					  genNC->nc.pNCFile->close(); 
+					#endif //DO_NETCDF
+				};//if
+				break;
+			}//generate case
+			case(1):
+			{
+				std::cout <<"Type de signal :" <<generate->class_name<< std::endl;
+				std::vector<std::string> var_unit_long_names;
+				CDataStore<Tdata,Taccess> store(locks,imagefilename,digit
+				#ifdef DO_NETCDF
+				  , "generator", generate->class_name //generator_type
+				  , var_unit_long_names
+				#endif //NetCDF
+				);
+				int j = 0;
+				for (unsigned int i=0;i<ns;++i,j++){
+					store.iteration(access,images, j,i);
+					if(j>=nbuffer-1){
+						j=-1;
+					}
+				}//for
+				break;
+			}//store case
+			default:
+				break;
+		}//switch
+	}//pragma
+	
+	collateListGraph(images); 	
   return 0;
 }//main
 
