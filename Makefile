@@ -10,7 +10,8 @@ LIB_NETCDF= -I../NetCDF.Tool  -I../CImg.Tool -I/usr/include/ -lnetcdf_c++ -L/usr
 ##do compile
 DO_NETCDF=-DDO_NETCDF $(LIB_NETCDF) -DARCH=$(ARCH)
 #DO_NETCDF=
-
+DO_BLOCK=-DDO_BLOCK
+#DO_BLOCK=
 
 all: bin doc run
 
@@ -19,12 +20,12 @@ version:
 
 #no display
 bin: version
-	$(CXX) -Dcimg_display=0 $(VERSION) -fopenmp $(CIMG_LIB)  main.cpp  $(LIB_NETCDF) -o $(BIN) && ./$(BIN) --help
+	$(CXX) -Dcimg_display=0 $(VERSION) -fopenmp $(CIMG_LIB)  main.cpp  $(DO_NETCDF) -o $(BIN) && ./$(BIN) --help
 	./$(BIN) --help > $(BIN)_help.output && ./$(BIN) --version > VERSION
 
 #display
 binX: version
-	$(CXX) main.cpp $(VERSION) -fopenmp $(CIMG_LIB) $(CIMG_LIBX) $(DO_NETCDF)  -o $(BIN)X && ./$(BIN)X --help
+	$(CXX) main.cpp $(VERSION) -fopenmp $(CIMG_LIB) $(CIMG_LIBX) $(DO_NETCDF) $(DO_BLOCK) -o $(BIN)X && ./$(BIN)X --help
 	./$(BIN)X --help > $(BIN)X_help.output && ./$(BIN)X --version > VERSION
 
 doc: main.cpp

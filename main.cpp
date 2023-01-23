@@ -455,7 +455,7 @@ int main(int argc, char **argv)
   const float rate1 = cimg_option("-r1",170.0,"rate1 in case of signal 4: pac");
   const float rate2 = cimg_option("-r2",100.0,"rate2 in case of signal 4: pac");
   const std::string i = cimg_option("-i", "","file name  to read (parameters.nc)");
-  const int ns = cimg_option("-ns",1,"number of duplication of the signal ");
+  int nSignaux = cimg_option("-ns",1,"number of duplication of the signal ");
   const int nbuffer= cimg_option("-nbB",1,"number of buffer to use ");
   
   //CData Factory
@@ -529,10 +529,11 @@ int main(int argc, char **argv)
 	visu.display_graph("Merged graph");*/
   
     
-    std::vector<std::string> generator_type_list;CDataGenerator_factory<Tdata, Taccess>::show_factory_types(generator_type_list);std::cout<<std::endl;
+   std::vector<std::string> generator_type_list;CDataGenerator_factory<Tdata, Taccess>::show_factory_types(generator_type_list);std::cout<<std::endl;
        
   //OpenMP locks
   omp_lock_t print_lock;omp_init_lock(&print_lock);
+  
   
     //! circular buffer
   CImgList<Tdata> images(nbuffer,width,1,1,1);
@@ -548,11 +549,27 @@ int main(int argc, char **argv)
   CImg<Taccess> access(nbuffer,1,1,1);
   access.fill(0);//free
   access.print("access (free state)",false);fflush(stderr);
-  
-  
-  
+ 
+ 
+//block threading   
+  int block_size=1;
+  if(nbuffer%2==0){
+	block_size=nbuffer/2;
+  }
+  else if(nbuffer%3==0){
+	block_size=nbuffer/3;
+  }else{
+	block_size=nbuffer;
+  }
+int ittLoop=nSignaux/nbuffer;
+float temp=nSignaux/nbuffer;
+if(nSignaux%nbuffer!=0){ittLoop=(int)temp+1;}
+int reachBuffer=nbuffer/block_size;
+
+std::cout<<"ittLoop = "<<ittLoop<<std::endl;
+  std::cout<<"block size = "<<block_size<<std::endl;
 	CDataGenerator<Tdata, Taccess> *generate=CDataGenerator_factory<Tdata, Taccess>::NewCDataGenerator 
-      (generator_type, generator_type_list, locks);
+      (generator_type, generator_type_list, locks,block_size);
       
     /*std::cout <<"Type de signal :" <<generate->class_name<< std::endl;
      std::vector<std::string> var_unit_long_names;
@@ -580,8 +597,7 @@ int main(int argc, char **argv)
 	};//if
 	collateListGraph(images);
 	*/
-	
-	
+		
 omp_set_dynamic(0);
 omp_set_num_threads(2);
 #pragma omp parallel shared(access,images,nbuffer,locks,imagefilename)
@@ -589,14 +605,32 @@ omp_set_num_threads(2);
 		int x = omp_get_thread_num();//omp_get_max_threads();
 		switch(x){
 			case(0):
-			{
-				int j = 0;
-				for (unsigned int i=0;i<ns;++i,j++){
+			{	//line by line
+				/*int j = 0;
+				for (unsigned int i=0;i<nSignaux;i++,j++){
 					generate->iteration(access,images ,j,i);
+					std::cout<<"I = "<<i<<std::endl;
+					std::cout<<"J = "<<j<<std::endl;
 					if(j>=nbuffer-1){
 						j=-1;
 					}
-				}//for
+					* 
+				}//for*/
+				//Block by block
+				int j=0;//buffer index
+				for(int i=0;i<nSignaux;i+=block_size,j+=block_size)//sample index
+				{
+					std::cout<<"I = "<<i<<std::endl;
+					std::cout<<"J = "<<j<<std::endl;
+					if(j>=nbuffer-1){
+						j=0;
+					}
+					generate->iterationBlock(access,images,j,i);
+
+//! \todo [high] remove debug access print
+					access.print("Etat acces : ");
+				}//i loop
+					
 				if(!(generate->class_name=="CDataGenerator")){		
 					#ifdef DO_NETCDF
 					  //close NC file 
@@ -617,7 +651,7 @@ omp_set_num_threads(2);
 				#endif //NetCDF
 				);
 				int j = 0;
-				for (unsigned int i=0;i<ns;++i,j++){
+				for (unsigned int i=0;i<nSignaux;++i,j++){
 					store.iteration(access,images, j,i);
 					if(j>=nbuffer-1){
 						j=-1;
@@ -627,9 +661,9 @@ omp_set_num_threads(2);
 			}//store case
 			default:
 				break;
+				
 		}//switch
 	}//pragma
-	
 	collateListGraph(images); 	
   return 0;
 }//main
