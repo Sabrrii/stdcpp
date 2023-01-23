@@ -550,7 +550,9 @@ int main(int argc, char **argv)
   access.fill(0);//free
   access.print("access (free state)",false);fflush(stderr);
  
- 
+
+
+//! \todo [meduim] change to adapte buffer from block size and adjust buffer size with cli 
 //block threading   
   int block_size=1;
   if(nbuffer%2==0){
@@ -561,12 +563,8 @@ int main(int argc, char **argv)
   }else{
 	block_size=nbuffer;
   }
-int ittLoop=nSignaux/nbuffer;
-float temp=nSignaux/nbuffer;
-if(nSignaux%nbuffer!=0){ittLoop=(int)temp+1;}
-int reachBuffer=nbuffer/block_size;
 
-std::cout<<"ittLoop = "<<ittLoop<<std::endl;
+
   std::cout<<"block size = "<<block_size<<std::endl;
 	CDataGenerator<Tdata, Taccess> *generate=CDataGenerator_factory<Tdata, Taccess>::NewCDataGenerator 
       (generator_type, generator_type_list, locks,block_size);
@@ -616,19 +614,15 @@ omp_set_num_threads(2);
 					}
 					* 
 				}//for*/
+				
 				//Block by block
 				int j=0;//buffer index
-				for(int i=0;i<nSignaux;i+=block_size,j+=block_size)//sample index
+				for(int i=0;i<nSignaux;i+=generate->blockSize,j+=generate->blockSize)//sample index
 				{
-					std::cout<<"I = "<<i<<std::endl;
-					std::cout<<"J = "<<j<<std::endl;
 					if(j>=nbuffer-1){
 						j=0;
 					}
 					generate->iterationBlock(access,images,j,i);
-
-//! \todo [high] remove debug access print
-					access.print("Etat acces : ");
 				}//i loop
 					
 				if(!(generate->class_name=="CDataGenerator")){		
