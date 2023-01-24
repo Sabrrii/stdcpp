@@ -473,8 +473,7 @@ int main(int argc, char **argv)
 
   //}CLI option
   
-  
-
+ 
   ///Check if the option is empty or not 
   if(i!=""){
 	readFile(amplitude,baseline,nb_tB,nb_tA,i);
