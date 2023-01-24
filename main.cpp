@@ -456,8 +456,8 @@ int main(int argc, char **argv)
   const float rate2 = cimg_option("-r2",100.0,"rate2 in case of signal 4: pac");
   const std::string i = cimg_option("-i", "","file name  to read (parameters.nc)");
   int nSignaux = cimg_option("-ns",1,"number of duplication of the signal ");
-  const int nbuffer= cimg_option("-nbB",1,"number of buffer to use ");
-  
+  int ideal_nb_buffer= cimg_option("-nbB",1,"number of buffer to use ");
+  int block_size= cimg_option("-bs",1,"block size in the buffer for block threading");
   //CData Factory
   const std::string generator_type=cimg_option("--gen_factory","count","gen a peak");
    if(show_help) {/*print_helps(std::cerr);*/return 0;}
@@ -530,7 +530,14 @@ int main(int argc, char **argv)
   
     
    std::vector<std::string> generator_type_list;CDataGenerator_factory<Tdata, Taccess>::show_factory_types(generator_type_list);std::cout<<std::endl;
-       
+     
+   //buffer sizing adjustment
+   //la taille du buffer doit etre x*ns <le plsu proche de  ideal nb buffer 
+ int nbuffer=ideal_nb_buffer;
+
+	
+ 
+ std::cout<<"nbuffer : "<<nbuffer<<std::endl;      
   //OpenMP locks
   omp_lock_t print_lock;omp_init_lock(&print_lock);
   
@@ -550,20 +557,6 @@ int main(int argc, char **argv)
   access.fill(0);//free
   access.print("access (free state)",false);fflush(stderr);
  
-
-
-//! \todo [meduim] change to adapte buffer from block size and adjust buffer size with cli 
-//block threading   
-  int block_size=1;
-  if(nbuffer%2==0){
-	block_size=nbuffer/2;
-  }
-  else if(nbuffer%3==0){
-	block_size=nbuffer/3;
-  }else{
-	block_size=nbuffer;
-  }
-
 
   std::cout<<"block size = "<<block_size<<std::endl;
 	CDataGenerator<Tdata, Taccess> *generate=CDataGenerator_factory<Tdata, Taccess>::NewCDataGenerator 
@@ -619,6 +612,7 @@ omp_set_num_threads(2);
 				int j=0;//buffer index
 				for(int i=0;i<nSignaux;i+=generate->blockSize,j+=generate->blockSize)//sample index
 				{
+					std::cout<<"I: "<<i<<std::endl;
 					if(j>=nbuffer-1){
 						j=0;
 					}
