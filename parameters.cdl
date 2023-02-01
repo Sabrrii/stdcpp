@@ -1,0 +1,130 @@
+netcdf RockAMali.parameters {//written in NetCDF CDL language
+  :institution = "GANIL";
+  :title = "RockAMali parameters";
+  :comment = "source of parameters for RockAMali processing program";
+  :history = "";
+  :version = "v0.0.2";
+
+dimensions:
+//  dim_string=64;
+//  dim_=unlimited;
+
+//variable declaration and attributes
+variables:
+//signal: see user doc. in gitlab wiki (from doxygen doc. in C++ source, i.e. \page pageSchema)
+  int signal;
+     signal:long_name="signal graph parameters (activated if >0)";
+//Generator Random (factory: signal_random)
+     signal:rand_min_long_name="minimum of random values";
+     signal:rand_min=0;
+     signal:rand_min_units = "digit";
+
+     signal:rand_max_long_name="maximum of random values";
+     signal:rand_max=65535;
+     signal:rand_max_units = "digit";
+
+//Generator PAC signal (factory: signal_pac -, signal_pac_rnd, peak_noise and full_random-)
+     signal:B_long_name="baseline";
+     signal:B= 20;
+     signal:B_units = "digit";
+
+     signal:A_long_name="amplitude";
+     signal:A= 200;
+     signal:A_units = "digit";
+
+     signal:nb_tB_long_name="baseline time";
+     signal:nb_tB= 100;
+     signal:nb_tB_units = "pixel";
+
+     signal:nb_tA_long_name="increase time of peak"; 
+     signal:nb_tA= 10;
+     signal:nb_tA_units = "pixel";
+
+     signal:tau_long_name="exponential decrease time of peak";
+     signal:tau= 100;
+     signal:tau_units = "pixel";
+     
+//Generator PAC exp (factory: signal_exp , signal_exp_noise signal_exp_rnd and signal_exp_full_rnd)
+	 signal:tauM_long_name="exponential decrease time of peak";
+     signal:tauM= 170;
+     signal:tauM_units = "pixel";
+
+//Generator PAC with noise (factory: peak_noise -and full_random-)
+     signal:noise_long_name="amount of signal noise";
+     signal:noise=2;
+     signal:noise_units = "digit";
+
+//Generator PAC with random parameters (factory: signal_pac_rnd -and full_random-)
+     signal:noise_B_long_name="amount of baseline noise";
+     signal:noise_B=3;
+     signal:noise_B_units = "digit";
+
+     signal:noise_A_long_name="amount of amplitude noise";
+     signal:noise_A=12;
+     signal:noise_A_units = "digit";
+
+     signal:noise_tB_long_name="baseline size jitter"; 
+     signal:noise_tB=1;
+     signal:noise_tB_units = "pixel";
+
+     signal:noise_tA_long_name="increase size jitter"; 
+     signal:noise_tA=2;
+     signal:noise_tA_units = "pixel";
+
+     signal:noise_tau_long_name="amount of exponential decrease time noise";
+     signal:noise_tau=4;
+     signal:noise_tau_units = "pixel";
+
+//Generarot PAC  exp with random parameters (factory: signal_exp_rnd and signal_exp_full_rnd)
+     signal:noise_tauM_long_name="amount of exponential increase time noise";
+     signal:noise_tauM=4;
+     signal:noise_tauM_units = "pixel";
+	
+//signal processing: see user doc. in gitlab wiki (from doxygen doc. in C++ source, i.e. \page pageSchema)
+
+//trapezoid filter (factory: filter)
+  int trapezoid;
+    trapezoid:long_name="trapezoid filter (activated if >0)";
+///trapezoid filter
+    trapezoid:k_long_name= "increase size";
+    trapezoid:k= 200;
+    trapezoid:k_units= "pixel";
+
+    trapezoid:m_long_name= "plateau size";
+    trapezoid:m= 50;
+    trapezoid:m_units= "pixel";
+
+    trapezoid:alpha_long_name= "compensation coefficient";
+    trapezoid:alpha= 0.99800199866733306675;
+    trapezoid:alpha_units= "none";
+
+    trapezoid:n_long_name= "none";
+    trapezoid:n= 34;
+    trapezoid:n_unit= "pixel";
+
+    trapezoid:q_long_name= "computing delay";
+    trapezoid:q= 211;
+    trapezoid:q_unit= "pixel";
+///simple discri
+    trapezoid:threshold_long_name= "threshold for simple discri";
+    trapezoid:threshold=3.4;
+    trapezoid:threshold_unit= "digit";
+///fraction discri
+    trapezoid:fraction_long_name= "DCFD frac";
+    trapezoid:fraction=0.2;
+    trapezoid:fraction_unit= "none";
+
+    trapezoid:Tm_long_name= "DCFD delay=3*Tm/2";
+    trapezoid:Tm=20;
+    trapezoid:Tm_unit= "";
+
+
+
+//data value
+data:
+//signal
+  signal=1;
+//trapezoid filter
+  trapezoid=1;
+}
+
