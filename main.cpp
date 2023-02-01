@@ -527,7 +527,7 @@ int main(int argc, char **argv)
 	//print the dislplay with all the signals
 	visu.display_graph("Merged graph");*/
   
-    
+   
    std::vector<std::string> generator_type_list;CDataGenerator_factory<Tdata, Taccess>::show_factory_types(generator_type_list);std::cout<<std::endl;
      
    //buffer sizing adjustment
@@ -565,7 +565,7 @@ int main(int argc, char **argv)
 	CDataGenerator<Tdata, Taccess> *generate=CDataGenerator_factory<Tdata, Taccess>::NewCDataGenerator 
       (generator_type, generator_type_list, locks,block_size);
       
-    /*std::cout <<"Type de signal :" <<generate->class_name<< std::endl;
+    std::cout <<"Type de signal :" <<generate->class_name<< std::endl;
      std::vector<std::string> var_unit_long_names;
     CDataStore<Tdata,Taccess> store(locks,imagefilename,digit
 #ifdef DO_NETCDF
@@ -573,7 +573,7 @@ int main(int argc, char **argv)
       , var_unit_long_names
 #endif //NetCDF
       );
-
+/*
 	int j = 0;
     for (unsigned int i=0;i<ns;++i,j++){
 		generate->iteration(access,images ,j,i);
@@ -590,8 +590,7 @@ int main(int argc, char **argv)
 		#endif //DO_NETCDF
 	};//if
 	collateListGraph(images);
-	*/
-		
+		*/
 omp_set_dynamic(0);
 omp_set_num_threads(2);
 #pragma omp parallel shared(access,images,nbuffer,locks,imagefilename)
@@ -654,7 +653,7 @@ omp_set_num_threads(2);
 				
 		}//switch
 	}//pragma
-	collateListGraph(images); 	
+	collateListGraph(images); 
   return 0;
 }//main
 
